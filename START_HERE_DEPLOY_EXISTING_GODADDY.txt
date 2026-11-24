@@ -1,0 +1,61 @@
+WAYFORWARD CRM - REUSE EXISTING GODADDY NODE.JS APP (TEST ONLY)
+===================================================================
+
+WHY THIS PACKAGE
+  Keep the existing GoDaddy application URL and MySQL database.
+  Replace running textile Node.js CODE with the standalone Wayforward CRM server.
+  SS Branded WhatsApp has a DIFFERENT webhook and is not changed here.
+  Leave every MySQL textile table untouched. NO SQL IMPORT.
+
+FILES
+  GoDaddy_Backend/  -> Upload these files into the existing Node app root.
+    Included direct-browser emergency UI at:
+      https://zcypn1azem.c39.airoapp.ai/api/wayforward/inbox
+    This helps verify login before moving to GitHub Pages.
+  GitHub_Frontend/   -> Upload to your separate GitHub Pages repository.
+    config.js already points at https://zcypn1azem.c39.airoapp.ai
+
+SAFETY & ROLLBACK
+  1. Download your ENTIRE currently working ss_nodes app into a backup ZIP, including
+     server.js, all modules and package.json. You already backed up MySQL.
+  2. Export or take screenshots of GoDaddy's existing SECRETS setting NAMES (do not
+     store actual secret values in a public GitHub repo).
+  3. Confirm that SS Branded's Meta webhook callback is different. This package
+     registers ONLY /api/whatsapp/webhook on the reused domain.
+  4. Keep the existing DB_HOST, DB_NAME, DB_USER, DB_PASSWORD unchanged.
+  5. Keep the working WAYFORWARD_ADMIN_KEY, WHATSAPP_* credentials and
+     WHATSAPP_MODE=test / WHATSAPP_TEST_RECIPIENTS until test verification.
+  6. Set WAYFORWARD_FRONTEND_ORIGIN to the exact GitHub PAGES ORIGIN, e.g.
+     https://yourusername.github.io (not including /repository/).
+     This is required at backend startup. Replace example with your REAL origin.
+  7. Upload ONLY the files inside GoDaddy_Backend/ (not the folder itself),
+     including hidden .env.example optionally, but never a filled .env to GitHub.
+     Do not delete the GoDaddy account, DB or its tables.
+  8. Run npm install (or GoDaddy dependency deployment), set start command npm start,
+     publish/restart Node.js. Node >=20 recommended.
+  9. Test https://zcypn1azem.c39.airoapp.ai/health => {ok:true}.
+ 10. Test direct GoDaddy fallback CRM:
+     https://zcypn1azem.c39.airoapp.ai/api/wayforward/inbox
+     Then test Employee logins, chats, jobs and billing.
+ 11. Publish GitHub_Frontend/ to GitHub Pages. The code is configured to call this
+     GoDaddy API URL. Test login in your browser. Note browser third-party cookie
+     policies may prevent github.io -> airoapp.ai cookie sessions. If so, use the
+     direct GoDaddy fallback URL for testing; longer-term use same-site custom
+     domains for the website and API.
+ 12. Test inbound and outbound messages using verified Meta TEST recipient only.
+     Do NOT change either Meta webhook until the new application has passed
+     login + database tests. Keep SS Branded separate.
+
+IF SOMETHING BREAKS
+  Restore the COMPLETE original Node.js app source ZIP and prior settings, restart.
+  Your database should not need restoring because this package has no DROP/DELETE
+  migration. Some CREATE/ALTER operations can occur during normal CRM initialization;
+  therefore retain your existing database backup.
+
+VERY IMPORTANT
+  - This is a prepared deployment archive, NOT a live GoDaddy deployment.
+  - Do NOT import the full ss_nodes.sql export into the running database.
+  - Do NOT share GoDaddy/Meta tokens in GitHub (only front-end, no secrets).
+  - The existing Meta TEST restrictions remain; real-number approval is separate.
+  - Existing active logins will expire because sessions are stored in server memory.
+  - If the old GoDaddy app was also serving SS Branded routes, those stop after swap.

@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Wayforward Consultancy | Unified CRM</title>
+<style>
+:root{font:14px/1.45 Arial,system-ui,sans-serif;color:#1d2b3f;background:#eff3f8;--nav:#143555;--line:#dfe6f0;--blue:#18518b;--muted:#65768e}*{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit}button{cursor:pointer;border:0;border-radius:8px;padding:9px 12px;background:var(--blue);color:#fff;font-weight:700}button:disabled{opacity:.5;cursor:not-allowed}button.secondary{background:#eaf1f9;color:#1a4777}button.ghost{background:transparent;color:#305578;border:1px solid #c9d6e6}button.selected{background:#d9e9f8;color:#153f69}input,select,textarea{width:100%;padding:9px 10px;border:1px solid #cbd6e4;border-radius:8px;background:#fff;min-width:0}textarea{resize:vertical;min-height:65px}label{display:block;color:#52647a;font-size:12px;margin-bottom:4px}h3{font-size:15px;margin:3px 0 10px}h4{font-size:13px;margin:8px 0}header{background:var(--nav);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 18px;min-height:62px}header strong{font-size:16px;letter-spacing:.3px}header small{display:block;color:#bfd5e7;font-size:11px;margin-top:2px}.header-actions{display:flex;align-items:center;gap:8px}.header-actions button{background:#eaf1f9;color:#173d68}.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;padding:10px 14px;background:#f5f8fc;border-bottom:1px solid var(--line)}.kpi{border:1px solid #dbe5f0;background:#fff;border-radius:11px;padding:10px 12px;text-align:left;color:#213b58;display:flex;flex-direction:column;gap:1px}.kpi b{font-size:21px}.kpi small{color:#6b7b8d;font-size:11px}.kpi.selected{border-color:#7bafdd;background:#e7f2fc}.layout{height:calc(100dvh - 160px);min-height:520px;display:grid;grid-template-columns:265px minmax(350px,1fr) 340px;max-width:1900px;margin:auto;background:#fff}.left,.middle,.right{min-height:0;display:flex;flex-direction:column}.left{border-right:1px solid var(--line)}.right{border-left:1px solid var(--line);background:#fcfdff}.sidehead{padding:12px;border-bottom:1px solid var(--line)}.sidehead input{margin:8px 0 6px}.row{display:flex;align-items:center;gap:8px;justify-content:space-between}.row.wrap{flex-wrap:wrap}.tiny{font-size:11px;color:var(--muted)}.chips{display:flex;gap:5px;flex-wrap:wrap}.chips button{padding:5px 8px;font-size:11px}.itemlist{overflow:auto;flex:1}.clientitem{width:100%;border-bottom:1px solid #e8edf4;background:#fff;color:#213956;text-align:left;border-radius:0;padding:11px 13px}.clientitem:hover{background:#f3f8fd}.clientitem.active{background:#e5f0fc}.clientitem strong,.clientitem small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.clientitem small{font-size:11px;color:var(--muted);margin-top:4px}.count{background:#176d59;color:#fff;font-size:10px;border-radius:12px;padding:2px 6px}.switch{display:flex;gap:5px;border-bottom:1px solid var(--line);padding:9px 12px;align-items:center;flex-wrap:wrap}.switch button{font-size:12px}.view{display:none;min-height:0;flex:1;flex-direction:column}.view.active{display:flex}.chathead{padding:10px 15px;border-bottom:1px solid var(--line)}.chathead strong{display:block}.chathead small{color:var(--muted)}.alert{display:none;background:#fff2d9;color:#815012;padding:8px 12px;font-size:12px}.thread{flex:1;min-height:0;overflow:auto;padding:16px;background:#f5f8fc}.bubble{max-width:80%;padding:11px 13px;border-radius:12px;margin-bottom:10px;background:#fff;box-shadow:0 1px 3px #10203013;overflow-wrap:anywhere;white-space:pre-wrap}.bubble.outbound{margin-left:auto;background:#d8f0e3}.bubble small{display:block;text-align:right;margin-top:6px;font-size:10px;color:#63738b}.composer{display:flex;gap:8px;border-top:1px solid var(--line);padding:10px}.composer textarea{flex:1}.panel-scroll{flex:1;overflow:auto;padding:14px}.box{border:1px solid #e0e7f0;border-radius:10px;padding:12px;margin-bottom:12px;background:#fff}.box-title{display:flex;align-items:center;justify-content:space-between;gap:8px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:9px}.field{margin-bottom:10px}.field.full{grid-column:1/-1}.inline-actions{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.muted{color:var(--muted)}.notice{color:#7b4b05;background:#fff6df;padding:8px;border-radius:7px;font-size:12px;margin:8px 0}.success{color:#08764d;font-size:12px}.error{color:#b52b38;font-size:12px}.note{white-space:pre-wrap;overflow-wrap:anywhere;background:#f1f5fb;border:1px solid #e3eaf4;padding:9px;border-radius:7px;margin-bottom:7px;font-size:12px}.note small{display:block;color:var(--muted);margin-top:5px}.case-card,.task-card{border:1px solid #dfe7f1;border-radius:9px;padding:11px;margin:8px 0;background:#fff}.case-card strong,.task-card strong{display:block;margin-bottom:4px}.table-scroll{overflow:auto;flex:1;padding:12px}table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:10px 8px;text-align:left;border-bottom:1px solid #e6ebf2;vertical-align:top}th{background:#f3f7fc;position:sticky;top:0;z-index:1;color:#53677d;font-size:11px}td button{padding:5px 8px;font-size:11px}.content-head{padding:12px 15px;border-bottom:1px solid var(--line)}.filters{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.filters input,.filters select{width:auto;min-width:130px;flex:1;max-width:270px}.right.collapsed{display:none}.layout.collapsed{grid-template-columns:265px minmax(350px,1fr)}.login{max-width:420px;margin:9vh auto;background:white;border-radius:14px;padding:28px;box-shadow:0 7px 30px #102a431a}.login input{margin:8px 0 12px}#app,#logout{display:none}.chiplabel{padding:5px 8px;border-radius:8px;background:#eaf0f7;color:#365674;font-size:11px}.divider{border-top:1px solid var(--line);margin:13px 0}.empty{padding:18px;color:#73839a;text-align:center}.task-state{width:auto;max-width:150px;font-size:11px}.compact-table td{padding:7px}.right .panel-scroll{padding:12px}@media(max-width:1150px){.layout{grid-template-columns:220px minmax(300px,1fr) 300px}.layout.collapsed{grid-template-columns:220px minmax(300px,1fr)}}@media(max-width:850px){.kpis{grid-template-columns:repeat(3,1fr)}.layout,.layout.collapsed{height:auto;display:flex;flex-direction:column}.left{height:220px;border-right:0;border-bottom:1px solid var(--line)}.middle{height:590px}.right{height:520px;border-left:0;border-top:1px solid var(--line)}.right.collapsed{display:none}}@media(max-width:480px){.kpis{grid-template-columns:repeat(2,1fr);padding:8px}.fields{grid-template-columns:1fr}.bubble{max-width:94%}header{padding:8px 10px}.header-actions button{font-size:11px;padding:7px}}
+
+/* Full-browser-width unified workspace: avoid centered fixed-width canvas. */
+html,body{width:100%;max-width:none;min-height:100%;overflow-x:hidden}
+#app{width:100%;max-width:none;min-width:0;margin:0}
+#app .kpis{width:100%;max-width:none;margin:0;grid-template-columns:repeat(5,minmax(0,1fr))}
+#app .layout{
+  width:100%;max-width:none;margin:0;
+  height:calc(100dvh - 160px);min-height:420px;
+  display:grid;
+  grid-template-columns:minmax(260px,20%) minmax(0,1fr) minmax(340px,27%);
+  gap:0;align-items:stretch;justify-content:stretch;
+}
+#app .layout.collapsed{grid-template-columns:minmax(260px,21%) minmax(0,1fr)}
+#app .layout > .left,#app .layout > .middle,#app .layout > .right{
+  min-width:0;min-height:0;width:auto;max-width:none;
+}
+#app .layout .left{background:#fff}
+#app .layout .middle{background:#fff}
+#app .layout .right{background:#fcfdff}
+#app .layout .itemlist{min-width:0}
+#app .layout button.clientitem{
+  display:block;width:100%;max-width:100%;padding:12px 14px;
+  border:0;border-bottom:1px solid #e8edf4;
+  border-radius:0;background:#fff;color:#213956;
+  text-align:left;line-height:1.45;overflow:hidden;
+}
+#app .layout button.clientitem:hover{background:#f3f8fd}
+#app .layout button.clientitem.active{background:#e5f0fc;color:#173e68}
+#app .layout button.clientitem strong,
+#app .layout button.clientitem small{
+  display:block;max-width:100%;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap;word-break:normal;
+}
+#app .layout button.clientitem small{font-weight:400;font-size:12px;line-height:1.4;margin-top:4px;color:#65768e}
+#app .layout button.clientitem strong{font-size:13px}
+#app .layout .switch{flex-shrink:0}
+#app .layout .thread,#app .layout .table-scroll,#app .layout .panel-scroll{min-width:0}
+@media (max-width:1200px){
+  #app .layout{grid-template-columns:minmax(220px,23%) minmax(0,1fr) minmax(295px,30%)}
+  #app .layout.collapsed{grid-template-columns:minmax(220px,24%) minmax(0,1fr)}
+}
+@media (max-width:850px){
+  #app .layout,#app .layout.collapsed{height:auto;min-height:0;display:flex;flex-direction:column;width:100%}
+  #app .layout .left{height:230px;min-height:230px}
+  #app .layout .middle{height:590px;min-height:590px}
+  #app .layout .right{height:560px;min-height:560px}
+  #app .layout .right.collapsed{display:none}
+}
+@media (max-width:600px){
+  #app .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #app .layout .left{height:200px;min-height:200px}
+  #app .layout .middle{height:65dvh;min-height:420px}
+}
+
+/* WhatsApp-style conversation list: override generic button styles. */
+#app .layout .left{background:#fff}
+#app .layout .sidehead{padding:15px 15px 11px;background:#fff;border-bottom:1px solid #edf0f2}
+#app .layout .sidehead .row strong{font-size:17px;letter-spacing:-.2px;color:#18252d}
+#app .layout .sidehead input[type="search"]{border-radius:9px;background:#f0f2f5;border:1px solid transparent;padding:11px 13px;margin:12px 0 11px;color:#18252d}
+#app .layout .sidehead input[type="search"]:focus{outline:2px solid #b7ded3;background:#fff}
+#app .layout .chips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px}
+#app .layout .chips button{white-space:nowrap;background:#f0f2f5;color:#566571;border:0;border-radius:22px;padding:7px 10px;font-weight:600;font-size:11px}
+#app .layout .chips button.selected{background:#d9f3e8;color:#087754}
+#app .layout .itemlist{background:#fff;overflow-y:auto;overflow-x:hidden}
+#app .layout .itemlist button.clientitem,
+#app .layout .itemlist button.clientitem:hover,
+#app .layout .itemlist button.clientitem.active{
+  width:100%;display:flex;align-items:center;gap:12px;min-height:76px;
+  padding:11px 14px;border:0;border-bottom:1px solid #edf0f2;
+  border-radius:0;text-align:left;box-shadow:none;overflow:hidden;line-height:normal;
+}
+#app .layout .itemlist button.clientitem{background:#fff;color:#172b35}
+#app .layout .itemlist button.clientitem:hover{background:#f5f7f8;color:#172b35}
+#app .layout .itemlist button.clientitem.active{background:#e9edef;color:#172b35}
+#app .layout .itemlist .chat-avatar{width:48px;height:48px;border-radius:50%;flex:0 0 48px;display:grid;place-items:center;background:#d9e7e2;color:#276554;font-size:17px;font-weight:750;letter-spacing:.5px;user-select:none}
+#app .layout .itemlist .chat-avatar.is-unread{background:#c7e9da;color:#08744f}
+#app .layout .itemlist .chat-details{display:flex;flex:1;flex-direction:column;gap:5px;min-width:0;text-align:left}
+#app .layout .itemlist .chat-top,#app .layout .itemlist .chat-bottom{display:flex;align-items:center;gap:7px;min-width:0;width:100%}
+#app .layout .itemlist .chat-name{flex:1;display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#172b35;font-size:14px;font-weight:650}
+#app .layout .itemlist .chat-time{flex-shrink:0;color:#75848b;font-size:10px;font-weight:400;white-space:nowrap}
+#app .layout .itemlist .chat-time.unread{color:#07875e;font-weight:700}
+#app .layout .itemlist .chat-preview{flex:1;display:block;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#6a787e;font-size:12px;font-weight:400}
+#app .layout .itemlist .chat-unread{margin-left:auto;flex-shrink:0;min-width:19px;height:19px;border-radius:20px;padding:0 5px;background:#20c772;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:750}
+#app .layout .itemlist .chat-service{display:inline-block;align-self:start;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;font-weight:600;color:#59816f}
+@media(max-width:850px){#app .layout .itemlist button.clientitem{min-height:68px}#app .layout .itemlist .chat-avatar{width:42px;height:42px;flex-basis:42px}}
+
+/* Phase 2C/2D additions */
+#documentsView .table-scroll{overflow:auto}#documentRows td{vertical-align:middle}
+#clientDocuments .doc-pill{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:8px;margin:6px 0;border:1px solid #e0e7f0;border-radius:8px;font-size:12px}
+#templatePreview{white-space:pre-wrap;overflow-wrap:anywhere;color:#364e68;background:#f2f7fc}
+#templateParameters .field{margin-top:7px}#templateStatus{margin-top:7px}
+#templateBox label input[type=checkbox]{vertical-align:middle;margin-right:5px}
+
+/* Phase 2E response reminder monitoring */
+.layout{height:calc(100dvh - 260px)}.response-kpis{display:flex;gap:8px;align-items:center;padding:7px 14px;background:#fffdf8;border-bottom:1px solid #efdfc8;flex-wrap:wrap}
+.response-config{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:8px 14px;border-bottom:1px solid #e5eaf2;background:#f8fbff}.response-config label{font-size:12px;font-weight:650}.response-config input{width:75px;padding:7px;border:1px solid #cad5e2;border-radius:6px}.response-config button{padding:8px 12px}.response-config .tiny{font-size:11px}
+.response-kpis button{background:#fff;border:1px solid #e7d8bd;color:#553e21;padding:7px 10px;font-size:12px}
+.response-kpis button:hover{background:#fff3dd}.response-kpis button.escalated{border-color:#e89c9c;color:#a32424}
+#responseModal{position:fixed;inset:0;background:#081e3490;z-index:10000;display:none;align-items:center;justify-content:center;padding:16px}
+#responseModal.visible{display:flex}.response-dialog{background:#fff;border-radius:14px;width:min(540px,95vw);max-height:85dvh;overflow:auto;box-shadow:0 15px 60px #0003;padding:20px}
+.response-dialog h3{margin:0 0 7px;font-size:20px}.response-dialog p{font-size:13px;color:#52647a;line-height:1.5}
+.response-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.response-actions button{flex:1;min-width:110px}
+#responseList{max-height:250px;overflow:auto}.response-card{padding:10px;border:1px solid #dfe6f0;border-radius:9px;margin:7px 0;background:#fff}.response-card.escalated{border-color:#ef9e9e;background:#fff8f7}
+.response-card[role="button"]{cursor:pointer;transition:background .15s,border-color .15s}.response-card[role="button"]:hover,.response-card[role="button"]:focus-visible{background:#edf7fc;border-color:#7ea9cd;outline:2px solid transparent}.response-card[role="button"]:focus-visible{outline:2px solid #2d77ae;outline-offset:2px}
+.response-card button{width:100%;text-align:left;background:transparent;color:#163b60;padding:3px}.response-card small{display:block;color:#66778a;margin-top:4px}
+.response-chip{display:inline-flex;margin:5px 0 0;padding:3px 7px;border-radius:20px;background:#fff1d7;color:#875417;font-size:10px;font-weight:750}.response-chip.urgent{background:#ffdddd;color:#a32222}
+#responseActor{margin:9px 0 0}#responseReason{margin-top:7px;min-height:54px}
+@media(max-width:850px){.layout{height:auto}}
+@media print{#responseModal,.response-kpis{display:none!important}}
+
+/* Phase 3 shared inbox and employee workspace */
+.wf3-role{font-size:12px;color:#d5e8f7;background:#24506e;padding:6px 10px;border-radius:18px}
+.wf3-bell{position:relative}.wf3-bell b{background:#d94141;color:#fff;border-radius:99px;padding:1px 5px;position:absolute;top:-7px;right:-5px;font-size:10px}
+.wf3-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.wf3-task{border:1px solid #dde5ef;border-radius:9px;padding:10px;margin:8px 0;background:#fff}
+.wf3-task strong{display:block;margin-bottom:5px}.wf3-task small{color:#5e738b}
+.wf3-pill{font-size:11px;background:#ecf3fa;padding:3px 7px;border-radius:8px;display:inline-block}
+.wf3-alert{border-left:4px solid #2979b9;padding:9px;background:#eff6fd;margin:6px 0;border-radius:6px}
+.wf3-msg-btn{display:block;margin:7px 0 0 auto;font-size:10px;padding:5px 8px;background:#e7f0f9;color:#164f85;border:1px solid #c5d9ee}
+.wf3-only{display:none}.wf3-narrow{max-width:180px}.wf3-select{width:100%}
+#phase3View .table-scroll{overflow:auto}#wf3Notifications{max-height:220px;overflow:auto}
+#app #taskBox,#app #newTask,#app #addTaskForClient{display:none}
+#app.wf3-employee .wf3-settings,#app.wf3-employee #clientBox,#app.wf3-employee #caseBox,#app.wf3-employee #taskBox{display:none}
+#app.wf3-employee #newClient,#app.wf3-employee #newCase,#app.wf3-employee #addCaseForClient,#app.wf3-employee #newTask,#app.wf3-employee #addTaskForClient,#app.wf3-employee #newDocument,#app.wf3-employee #responseSettingsRow{display:none}
+#app.wf3-employee .wf3-admin{display:none}
+#app.wf3-admin .wf3-admin{display:block}
+
+/* Phase 3F permanent client workspace and read-by audit */
+#wf3fSummary{background:#f1f7fc;border:1px solid #dce8f3;padding:14px;border-radius:10px;margin-bottom:12px}
+.wf3f-metric{display:inline-block;margin:5px 9px 5px 0;font-size:12px;color:#284762}
+.wf3f-job{border:1px solid #e1e8ef;border-radius:9px;padding:11px;margin:9px 0;background:#fff}
+.wf3f-job strong{font-size:13px}.wf3f-job p{margin:5px 0;color:#566981;font-size:12px}
+.wf3f-event{font-size:12px;padding:9px;border-left:3px solid #87aac7;border-bottom:1px solid #eef1f5;margin-bottom:4px}
+.wf3f-readers{font-size:10px;color:#537486;margin-top:6px;text-align:right;white-space:normal}
+#app.wf3-employee #clientForm button[type=submit]{display:none}
+#app.wf3-employee #wf3fNewJob{display:none}
+#wf3fClientFormHome #clientBox{margin-bottom:12px}
+
+/* Phase 3G: one job-focused workspace and dedicated Documents editor */
+#documentsView .table-scroll{padding-bottom:26px}
+.wf-doc-editor-divider{height:1px;background:#dce6ef;margin:18px 14px 16px}
+.wf-doc-editor{max-width:750px;margin:0 auto;padding:0 14px 22px}
+#wfDocumentEditorArea #documentBox{margin:0;background:#f8fbfe;border-color:#d6e3f0}
+#wfDocumentEditorArea #documentBox .box-title{margin-bottom:8px}
+#wfDocumentEditorArea #documentForm{padding-top:6px}
+#wfJobOverview .case-card{background:#f8fbff;border:1px solid #dce7f2;border-radius:9px;padding:10px;margin:8px 0}
+#wfJobOverview .case-card .tiny{display:block;line-height:1.5;margin-top:4px}
+.wf-workspace-quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:12px}
+.wf-workspace-quick-actions button{padding:9px 7px;font-size:12px}
+#wfQuickFollowup{grid-column:1/-1}
+.wf-workspace-alltasks{width:100%;margin-top:9px}
+#wfJobOverview .case-card button{margin:5px 6px 0 0!important;font-size:11px;padding:6px 9px}
+#wfJobOverview .wf-job-status{display:inline-block;font-size:10px;font-weight:700;background:#e5f2ff;color:#28577a;border-radius:12px;padding:3px 7px;margin-top:7px}
+#wfJobOverview .wf-job-status.completed{background:#e3f6ea;color:#226d44}
+#wfJobOverview .wf-job-status.overdue{background:#fff0ed;color:#a13a2b}
+#app.wf3-employee #wfJobOverview .wf3-admin{display:none}
+#app.wf3-employee #documentBox{display:none}
+#app.wf3-employee #wfJobOverview .case-card .wf-job-edit{display:none}
+@media(max-width:1050px){.wf-doc-editor{max-width:100%}}
+
+/* Phase 3G: shared CRM two-tab right panel */
+#app .layout .right{overflow:hidden}
+.wf-side-tabs{display:flex;flex:0 0 auto;border-bottom:1px solid #dce6f0;padding:8px 10px 0;gap:5px;background:#f8fbff}
+.wf-side-tab{flex:1;border-radius:9px 9px 0 0;background:transparent!important;color:#486078!important;font-size:12px;line-height:1.35;white-space:nowrap;padding:11px 6px!important;border-bottom:3px solid transparent!important}
+.wf-side-tab.selected{background:#fff!important;color:#18518b!important;border-bottom:3px solid #18518b!important}
+.wf-side-tab:focus-visible{outline:2px solid #3680b8;outline-offset:-2px}
+.wf-side-new{margin-left:4px;display:inline-block;border-radius:12px;background:#d94b3d;color:white;padding:1px 5px;font-size:10px}
+.wf-side-new[hidden],.wf-side-content[hidden]{display:none!important}
+#app .layout .right .wf-side-content{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:12px}
+.wf-dash-top{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:12px}
+.wf-dash-top h3{margin:0}.wf-dash-top button{font-size:11px;padding:7px 9px}
+.wf-dash-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:12px}
+.wf-dash-stat{border:1px solid #dce7f2;background:#fff;border-radius:10px;padding:10px;text-align:left!important;color:#284762!important;font-weight:normal}
+.wf-dash-stat b{display:block;font-size:22px;line-height:1.1;color:#193c5b}
+.wf-dash-stat small{display:block;margin-top:5px;font-size:10px;color:#61758a}
+.wf-dash-stat.warn{border-color:#f0c2b9;background:#fff9f7}
+.wf-dash-filters{display:flex;gap:5px;overflow-x:auto;margin-bottom:10px;padding-bottom:4px}
+.wf-dash-filter{background:#edf2f8;color:#305475;white-space:nowrap;font-size:11px;font-weight:650;padding:7px 9px}
+.wf-dash-filter.active{background:#18518b;color:#fff}
+.wf-dash-highlight{outline:2px solid #2a89ba;outline-offset:1px;background:#f2faff!important}
+.wf-dash-list .wf3-task{margin-bottom:9px;padding:10px}
+.wf-dash-list .wf3-task strong{font-size:12px}
+.wf-dash-list .wf3-task button{font-size:10px;padding:6px 8px}
+.wf-dash-notification{margin-top:15px}
+.wf-dash-notification .wf3-alert{font-size:11px}
+@media(max-width:850px){#app .layout .right{overflow:visible}#app .layout .right .wf-side-content{min-height:0}}
+
+#app.wf3-employee #wfmForm{display:none!important}
+/* Client Master registry: in-line registration without disturbing task or WhatsApp panels */
+.wfm-head{display:flex;gap:7px;align-items:center;flex-wrap:wrap}.wfm-head button{font-size:11px;padding:6px 9px}
+#wfmLeftScope{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}#wfmLeftScope button{font-size:10px;padding:5px 7px}
+.wfm-chat-actions[hidden]{display:none!important}.wfm-chat-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.wfm-chat-actions button{font-size:11px;padding:6px 9px}
+.wfm-layout{overflow:auto;flex:1;padding:14px;background:#f9fbfe}
+.wfm-card{max-width:900px;background:#fff;border:1px solid #e0e7f0;border-radius:11px;padding:14px;margin:0 auto 12px}
+.wfm-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.wfm-wide{grid-column:1/-1}.wfm-card label{margin-bottom:4px}
+.wfm-card .fields input{width:100%}
+.wfm-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.wfm-match{width:100%;text-align:left;background:#f2f7fd;color:#213956;border:1px solid #d7e5f2;font-weight:normal;margin:5px 0}
+.wfm-match:hover{background:#e0efff}.wfm-match strong{display:block}
+.wfm-box{border:1px solid #dce6ef;border-radius:9px;padding:9px;margin:7px 0;background:#f8fbff}
+.wfm-chip{font-size:10px;color:#125e4b;background:#e4f6ed;padding:3px 6px;border-radius:9px}
+#wfmMessage{font-size:12px;white-space:pre-line}
+@media(max-width:640px){.wfm-grid{grid-template-columns:1fr}.wfm-wide{grid-column:auto}}
+#wfConsentProfileBox{margin:12px 0}#templateFinalText{min-height:112px}#templateBox .note{white-space:pre-wrap}
+.wf-message-actions{display:flex;align-items:center;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin-top:7px}
+.wf-message-actions .wf3-msg-btn{display:inline-block;margin:0}
+.wf-message-close{background:#f9eded!important;color:#8f2e2e!important;border:1px solid #dfbdbd!important;padding:5px 9px!important;font-size:11px!important}
+.wf-message-close:hover{background:#f3dede!important}
+.wf-message-closed{color:#28754c;font-size:11px;font-weight:600}
+</style><style>
+/* Phase 3I common New Job modal and legacy creation migration */
+#wfUnifiedJobModal[hidden]{display:none!important}
+#wfUnifiedJobModal{position:fixed;inset:0;z-index:10080;background:rgba(11,30,48,.66);display:flex;justify-content:center;align-items:center;padding:18px}
+.wfuj-dialog{background:#fff;color:#162b40;border-radius:14px;box-shadow:0 18px 75px rgba(0,0,0,.27);width:min(710px,98vw);max-height:94vh;overflow:auto;padding:22px}
+.wfuj-dialog h3{margin:0 0 5px}.wfuj-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.wfuj-dialog .field{margin:9px 0}.wfuj-dialog input,.wfuj-dialog textarea,.wfuj-dialog select{width:100%;box-sizing:border-box}
+.wfuj-help{font-size:12px;color:#52667b;line-height:1.5}.wfuj-error{color:#b42318;font-size:13px;min-height:16px}
+.wfuj-employee-row{display:flex;justify-content:space-between;border-bottom:1px solid #e0e7ed;padding:7px 0;gap:12px}
+.wfuj-employee-row small{color:#5a6778}
+#wf3CreateForm,#taskBox{display:none!important}
+@media(max-width:700px){.wfuj-grid{grid-template-columns:1fr}.wfuj-dialog{padding:14px}}
+</style><style id="wf-phase3j-style">
+/* Phase 3J: one canonical card per client job, forms and Phase 3 hooks retained but hidden. */
+#wf3Right,#caseBox{display:none!important}
+#caseBox.wf3j-editing{display:block!important}
+.wf3j-legacy-controls[hidden]{display:none!important}
+.wf3j-heading-actions{margin:6px 0 10px}.wf3j-heading-actions button{width:100%}
+.wf3j-filters{display:flex;gap:6px;flex-wrap:wrap;margin:9px 0}
+.wf3j-filter{border:1px solid #d5e2ef!important;background:#f2f6fb!important;color:#31536d!important;padding:6px 10px!important;font-size:11px!important;border-radius:16px!important}
+.wf3j-filter.chosen{background:#18518b!important;color:white!important}
+#wfJobOverview .wf3j-job{padding:0!important;overflow:hidden;margin:9px 0}
+.wf3j-job-trigger{display:block!important;position:relative;text-align:left!important;width:100%;background:white!important;color:#213d57!important;border:0!important;border-radius:8px!important;padding:12px 32px 12px 11px!important;font-weight:400!important}
+.wf3j-job-trigger:hover,.wf3j-job-trigger:focus-visible{background:#f1f7fc!important}
+.wf3j-job-trigger strong{display:block;font-size:13px!important}
+.wf3j-job-trigger .tiny{display:block;margin-top:5px!important}
+.wf3j-expand-icon{position:absolute;right:12px;top:14px;font-size:17px}
+.wf3j-status-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px;align-items:center}
+.wf3j-status-row .wf-job-status{margin:0!important}
+.wf3j-assignment{display:inline-block;font-size:10px;font-weight:650;background:#e7f4ef;color:#17674d;padding:4px 7px;border-radius:12px}
+.wf3j-assignment.missing{background:#fff0e4;color:#9c4e17}
+.wf3j-details{border-top:1px solid #dde8f1;padding:10px 11px 13px;background:#fbfdff}
+.wf3j-details .tiny{margin:4px 0;line-height:1.6}
+.wf3j-warning{background:#fff4e5;color:#815118;border-radius:6px;padding:8px;font-size:11px;margin-top:9px}
+.wf3j-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+#wfJobOverview .wf3j-actions button{margin:0!important}
+</style><style id="wf-settings-dialog-style">
+#wfSettingsGear[hidden]{display:none!important}
+#wfSettingsGear{min-width:38px;padding:7px 10px;font-size:19px;line-height:1.15}
+#wfSettingsModal{border:1px solid #d9e3ef;border-radius:14px;padding:0;width:min(520px,calc(100vw - 26px));max-height:min(84vh,730px);box-shadow:0 20px 70px #071c3440;color:#1d2b3f;background:#fff;overflow-y:auto}
+#wfSettingsModal::backdrop{background:rgba(9,27,47,.56)}
+.wf-settings-header{display:flex;align-items:flex-start;justify-content:space-between;padding:20px 20px 14px;border-bottom:1px solid #e0e9f3;gap:12px}
+.wf-settings-header h3{margin:0 0 4px;font-size:18px}.wf-settings-header p{margin:0}
+.wf-settings-explain{padding:12px 20px 0;margin:0}
+#wfSettingsModal .response-config{display:grid;grid-template-columns:1fr;gap:7px;padding:16px 20px 20px;background:transparent;border-bottom:0}
+#wfSettingsModal .response-config>strong{font-size:14px!important;margin-bottom:3px}
+#wfSettingsModal .response-config label{margin:6px 0 0}
+#wfSettingsModal .response-config input{width:100%;max-width:none}
+#wfSettingsModal .response-config #responseSettingsActor{width:100%!important}
+#wfSettingsModal .response-config button{margin-top:9px}
+#wfSettingsModal .response-config .tiny{display:block;margin-top:4px}
+</style><script src="./config.js"></script></head><body>
+<header><div><strong>WAYFORWARD CONSULTANCY</strong><small>Unified WhatsApp · Clients · Cases · Staff & Follow-ups (Test)</small></div><div class="header-actions"><span class="wf3-role" id="wf3Role">Admin</span><button class="secondary" id="wfSettingsGear" type="button" title="Admin settings" aria-label="Open admin settings" aria-haspopup="dialog" aria-controls="wfSettingsModal" hidden>⚙️</button><button class="secondary wf3-bell" id="wf3Bell" type="button" title="Internal task notifications">🔔 <b id="wf3Count" style="display:none">0</b></button><button id="togglePanel" type="button">Hide client panel</button><button id="refresh" type="button">Refresh</button><button id="logout" type="button">Sign out</button></div></header>
+<section class="login" id="login"><h2>Wayforward Staff Login</h2><p class="muted">Employees: enter your assigned username and password. Admin: leave username blank to use your existing admin key.</p><form id="loginForm"><input id="wf3Username" autocomplete="username" placeholder="Employee username (blank for admin key)" maxlength="40"><input id="password" type="password" autocomplete="off" placeholder="Wayforward login key" required><button type="submit">Open unified CRM</button></form><div id="error" class="error" role="alert"></div></section>
+<div id="app">
+  <div class="kpis"><button type="button" class="kpi" data-kpi="all"><b id="kClients">0</b><small>Clients</small></button><button type="button" class="kpi" data-kpi="cases"><b id="kCases">0</b><small>Active cases</small></button><button type="button" class="kpi" data-kpi="today"><b id="kToday">0</b><small>Due today</small></button><button type="button" class="kpi" data-kpi="overdue"><b id="kOverdue">0</b><small>Overdue</small></button><button type="button" class="kpi" data-kpi="pending"><b id="kPending">0</b><small>Open tasks</small></button></div>
+  <div class="response-kpis" id="responseBar" aria-live="polite"><strong style="font-size:12px">Message response monitoring</strong>
+  <button id="responsePending" type="button">Unanswered: 0</button><button id="responseUnread" type="button">Unread: 0</button>
+  <button id="responseRead" type="button">Read, no reply: 0</button><button id="responseEscalated" class="escalated" type="button">Escalations: 0</button>
+  <button id="enableResponseDesktop" type="button">Enable desktop alerts</button><span id="responseMode" class="tiny">24/7 · every 2 minutes · escalate after 3h</span></div>
+  <div id="layout" class="layout">
+    <aside class="left"><div class="sidehead"><div class="row"><strong>Clients & Inbox</strong><div class="wfm-head"><span id="total" class="chiplabel">0</span><button type="button" id="wfmNewLeft" class="secondary wf3-admin">+ New Client</button></div></div><input id="search" type="search" placeholder="Name, mobile, service, PAN or GSTIN"><div id="wfmLeftScope"><button type="button" class="secondary selected" data-wfm-scope="all">All Clients</button><button type="button" class="secondary" data-wfm-scope="chat">WhatsApp Chats</button><button type="button" class="secondary" data-wfm-scope="jobs">Active Jobs</button></div><div class="chips"><button type="button" class="secondary" data-list="all">All</button><button type="button" class="secondary" data-list="unread">Unread</button><button type="button" class="secondary" data-list="open">Open</button><button type="button" class="secondary wf3-admin" id="newClient">+ Client</button></div></div><div id="conversations" class="itemlist"></div></aside>
+    <main class="middle"><div class="switch"><button type="button" class="secondary selected" data-view="chat">WhatsApp Chat</button><button type="button" class="secondary" data-view="profile">Client Profile</button><button type="button" class="secondary" data-view="master">Client Master</button><button type="button" class="secondary" data-view="cases">Jobs & Services</button><button type="button" class="secondary" data-view="followups">Follow-ups</button><button type="button" class="secondary" data-view="documents">Documents</button><button type="button" class="secondary" data-view="phase3">Staff Tasks</button><button type="button" class="secondary" data-view="billing">Billing &amp; Collections</button><span class="tiny" id="statusText" aria-live="polite"></span></div>
+      <section id="chatView" class="view active"><div class="chathead"><div class="row wrap"><div><strong id="current">Select a client</strong><small id="details">Messages update every 5 seconds</small></div><div class="wfm-chat-actions" id="wfmChatActions" hidden><span id="wfmChatState" class="tiny"></span><button id="wfmCreateFromChat" class="secondary wf3-admin" type="button">+ Create Client</button><button id="wfmLinkFromChat" class="ghost wf3-admin" type="button">Link Existing Client</button><button id="wfmViewLinked" class="secondary" type="button" hidden>View Client Profile</button></div></div></div><div id="alert" class="alert"></div><div id="thread" class="thread"><div class="empty">Select a client to read messages.</div></div><form id="replyForm" class="composer"><textarea id="reply" maxlength="4096" disabled placeholder="WhatsApp customer reply..."></textarea><button id="send" disabled>Send</button></form></section>
+      <section id="profileView" class="view"><div class="content-head"><div class="row wrap"><strong>Client Profile · Services & Job History</strong><div class="wfm-head"><button type="button" id="wfmNewInProfile" class="secondary wf3-admin">+ New Client</button><button type="button" id="wf3fNewJob" class="secondary">+ New Job</button></div></div><p class="tiny">One client can have many services and many separate jobs. Job stage, staff and follow-up belong to each job.</p></div><div class="table-scroll wf3f-profile-scroll"><div id="wf3fSummary" class="wf3f-summary">Select a client to view their profile and job history.</div><div id="wf3fClientFormHome"></div><section class="box wf3-admin" id="wfConsentProfileBox"><div class="box-title"><h4>WhatsApp Communication Preferences</h4><span class="tiny">Client Profile · Consent history</span></div><p class="tiny">Record permission for relevant service communications. This is an internal client record, not an override of WhatsApp's customer-service window.</p><div class="field"><label>Customer communication preference</label><select id="templateConsent"><option value="no">Not opted in / withdrawn</option><option value="yes">Customer opted in</option></select></div><div class="field"><label>Consent source or purpose *</label><input id="consentPurpose" maxlength="150" placeholder="Client registration / service agreement"></div><div class="field"><label>Recorded by *</label><input id="consentActor" maxlength="100" value="Staff"></div><div class="inline-actions"><button type="button" id="saveConsent">Save Consent</button><span class="tiny" id="consentStatus"></span></div></section><div class="box"><h4>Services & jobs</h4><div id="wf3fJobs"></div></div><div class="box"><h4>Employee tasks & job history</h4><div id="wf3fHistory"></div></div></div></section>
+      <section id="masterView" class="view"><div class="content-head"><div class="row wrap"><strong>Audit Office · Client Master</strong><button type="button" id="wfmNewProfile" class="secondary wf3-admin">+ New Client</button></div><p class="tiny">Register walk-in clients, link new WhatsApp numbers or find existing records. One permanent master, many jobs. Jobs require a valid contact mobile; WhatsApp conversation is optional.</p></div>
+      <div class="wfm-layout"><section class="wfm-card"><div class="row"><h3 id="wfmFormHeading">New Client Master</h3><span id="wfmFormSource" class="wfm-chip">Manual registration</span></div>
+        <form id="wfmForm"><input type="hidden" id="wfmId"><div class="wfm-grid">
+          <div><label for="wfmName">Client name *</label><input id="wfmName" required maxlength="160" autocomplete="off"></div>
+          <div><label for="wfmType">Client type</label><select id="wfmType"><option value="INDIVIDUAL">Individual</option><option value="PROPRIETORSHIP">Proprietorship</option><option value="PARTNERSHIP">Partnership</option><option value="LLP">LLP</option><option value="COMPANY">Company</option><option value="TRUST">Trust</option><option value="SOCIETY">Society</option><option value="OTHER">Other</option></select></div>
+          <div><label for="wfmMobile">Primary / WhatsApp mobile (optional)</label><input id="wfmMobile" inputmode="numeric" maxlength="16" placeholder="91... or leave blank for walk-in"></div>
+          <div><label for="wfmEmail">Email</label><input id="wfmEmail" type="email" maxlength="190"></div>
+          <div><label for="wfmPan">PAN (optional)</label><input id="wfmPan" maxlength="10" autocapitalize="characters"></div>
+          <div><label for="wfmGstin">GSTIN (optional)</label><input id="wfmGstin" maxlength="15" autocapitalize="characters"></div>
+          <div><label for="wfmTan">TAN (optional)</label><input id="wfmTan" maxlength="10" autocapitalize="characters"></div>
+          <div><label for="wfmSource">Client acquisition</label><select id="wfmSource"><option value="WALK_IN">Walk-in</option><option value="PHONE">Phone</option><option value="REFERRAL">Referral</option><option value="WHATSAPP">WhatsApp</option><option value="OTHER">Other</option></select></div>
+          <div class="wfm-wide"><label for="wfmAddress">Address</label><textarea id="wfmAddress" maxlength="600" rows="2"></textarea></div>
+          <div class="wfm-wide"><label for="wfmRemarks">Internal remarks</label><textarea id="wfmRemarks" maxlength="700" rows="2"></textarea></div>
+        </div><div class="wfm-actions"><button id="wfmSave" type="submit">Save Client Master</button><button id="wfmClear" type="button" class="ghost">Clear</button></div><p id="wfmMessage" aria-live="polite"></p></form></section>
+        <section class="wfm-card" id="wfmLinkBox" hidden><h3>Link existing Client Master to WhatsApp</h3><p id="wfmLinkHelp" class="tiny">Choose an existing client. No client records are merged automatically.</p><input id="wfmLookup" type="search" placeholder="Find by client name, phone, PAN or GSTIN"><div id="wfmResults"></div></section>
+        <section class="wfm-card" id="wfmJobsBox" hidden><div class="row"><h3>Client Jobs & Activity</h3><button type="button" class="secondary wf3-admin" id="wfmAddJob">+ New Job</button></div><div id="wfmJobsList" class="tiny">Select a client to view jobs.</div><div id="wfmAudit" class="tiny"></div></section>
+        <section class="wfm-card"><div class="row"><h3>Client Master Directory</h3><button type="button" id="wfmRefresh" class="secondary">Refresh</button></div><input id="wfmDirectorySearch" type="search" placeholder="Find client name / PAN / GSTIN / mobile"><div id="wfmDirectory" class="muted">Loading registered clients...</div></section>
+      </div></section>
+      <section id="casesView" class="view"><div class="content-head"><div class="row wrap"><strong>Case Register</strong><button type="button" id="newCase">+ New Job</button></div><div class="filters" style="margin-top:8px"><input id="caseSearch" placeholder="Search cases / reference"><select id="caseStaffFilter"><option value="">All staff</option></select><select id="caseScope"><option value="all">All clients</option><option value="selected">Selected client</option></select></div></div><div class="table-scroll"><table><thead><tr><th>Client / Case</th><th>Stage</th><th>Staff</th><th>Follow-up</th><th>Action</th></tr></thead><tbody id="caseRows"></tbody></table></div></section>
+      <section id="followupsView" class="view"><div class="content-head"><strong>Tasks & Follow-up Register</strong><div class="filters" style="margin-top:9px"><select id="dueScope"><option value="all">All outstanding</option><option value="today">Due today</option><option value="overdue">Overdue</option><option value="upcoming">Upcoming</option></select><select id="dueStaffFilter"><option value="">All staff</option></select><button type="button" id="newTask">+ New Job</button></div></div><div class="table-scroll"><table><thead><tr><th>Due</th><th>Client / Case</th><th>Work / Next action</th><th>Staff</th><th>Status / Action</th></tr></thead><tbody id="followupRows"></tbody></table></div></section>
+      <section id="documentsView" class="view"><div class="content-head"><div class="row"><strong>Document Checklist</strong><button type="button" class="secondary" id="newDocument">+ Request Document</button></div><p class="tiny">Select a client, then track requested, received and verified documents for each case. No actual files are stored here.</p><div class="filters"><select id="docFilter"><option value="">All statuses</option><option value="REQUESTED">Requested</option><option value="RECEIVED">Received</option><option value="VERIFIED">Verified</option><option value="WAIVED">Waived</option></select></div></div><div class="table-scroll"><table><thead><tr><th>Document / Case</th><th>Assigned</th><th>Due</th><th>Status</th><th>Action</th></tr></thead><tbody id="documentRows"></tbody></table>
+      <div class="wf-doc-editor-divider"></div>
+      <div class="wf-doc-editor" id="wfDocumentEditorArea"><section class="box" id="documentBox"><div class="box-title"><h4>Document Requests · Phase 2C</h4><button type="button" class="secondary" id="clearDocument">New</button></div><div id="clientDocuments" class="muted">Select a client to view document checklist.</div><form id="documentForm"><input type="hidden" id="documentId"><div class="field"><label>Related case *</label><select id="documentCase" required></select></div><div class="field"><label>Document name *</label><input id="documentTitle" maxlength="200" required placeholder="Sales register / Form 16 / bank statement"></div><div class="fields"><div class="field"><label>Status</label><select id="documentStatus"><option value="REQUESTED">Requested</option><option value="RECEIVED">Received</option><option value="VERIFIED">Verified</option><option value="WAIVED">Waived</option></select></div><div class="field"><label>Staff</label><input id="documentStaff" maxlength="100"></div><div class="field"><label>Due date</label><input id="documentDue" type="date"></div><div class="field"><label>Received date</label><input id="documentReceived" type="date"></div></div><div class="field"><label>Internal remarks</label><textarea id="documentRemarks" maxlength="500"></textarea></div><div class="field"><label>Changed by *</label><input id="documentActor" maxlength="100" value="Staff" required></div><button type="submit" id="saveDocument">Save Document Status</button></form></section></div>
+      </div></section>
+
+      <section id="phase3View" class="view"><div class="content-head"><div class="row wrap"><strong>Staff Tasks & Notifications</strong><button type="button" id="wf3Refresh" class="secondary">Refresh</button></div><div class="wf3-toolbar"><select id="wf3TaskFilter" class="wf3-narrow"><option value="OPEN">Open tasks</option><option value="ALL">All tasks</option><option value="REVIEW">Awaiting review</option><option value="OVERDUE">Overdue</option></select><span id="wf3TaskSummary" class="tiny">Loading tasks...</span></div></div><div class="table-scroll"><div id="wf3TaskList"></div><div class="box wf3-admin" id="wf3StaffAdmin"><h4>Employee accounts · Admin only</h4><p class="tiny">Use separate passwords. Staff see the shared inbox but only their own task queue.</p><form id="wf3StaffForm"><div class="fields"><div class="field"><label>Username</label><input id="wf3NewUser" maxlength="40" placeholder="e.g. priya" required></div><div class="field"><label>Display name</label><input id="wf3NewName" maxlength="100" placeholder="Priya" required></div><div class="field"><label>Role</label><select id="wf3NewRole"><option value="EMPLOYEE">Employee</option><option value="TEAM_LEAD">Team Lead</option><option value="ADMIN">Admin</option></select></div><div class="field"><label>Temporary password (12+ characters)</label><input id="wf3NewPassword" type="password" minlength="12" autocomplete="new-password" required></div></div><button type="submit">Create staff account</button></form><div id="wf3StaffList"></div></div></div></section>
+<section id="billingView" class="view"><div class="content-head"><div class="row wrap"><strong>Billing &amp; Collections</strong><button type="button" id="wfBillNew" style="display:none" hidden>+ Generate Bill</button><button type="button" class="secondary" id="wfBillRefresh">Refresh</button></div><p class="tiny" id="wfBillStatus" aria-live="polite"></p><div id="wfBillSummary" class="wf-bill-grid"></div>
+<div class="row wrap" aria-label="Billing views"><button type="button" class="secondary" id="wfBillGenerateTab" hidden>Generate Bill</button><button type="button" class="secondary" id="wfBillUploadTab" hidden>Upload Bill</button><button type="button" class="secondary selected" data-bill-filter="OPEN">Open Bills</button><button type="button" class="secondary" data-bill-filter="DRAFT">Pending Send</button><button type="button" class="secondary" data-bill-filter="ALL">Bill History</button></div>
+<div id="wfBillUploadPanel" class="box" hidden><div class="row wrap"><strong>Upload Bill to Customer</strong><span class="tiny">Select a generated bill, add an optional PDF, and send the bill message to the customer.</span></div><label>Select generated bill *<select id="wfBillUploadSelect"><option value="">Select pending bill</option></select></label><p id="wfBillUploadMeta" class="tiny">Select a generated bill to review its customer and outstanding amount.</p><div class="fields"><label>Client for WhatsApp (optional until sending)<select id="wfBillPrepareClient"><option value="">Unlinked manual draft</option></select></label><label>Bill total (INR)<input id="wfBillPrepareTotal" type="number" min="0" step="0.01"></label><label>Service description<input id="wfBillPrepareDescription" maxlength="500"></label><label>Collection employee (optional)<select id="wfBillPrepareCollector"><option value="">Unassigned</option></select></label></div><button type="button" class="secondary" id="wfBillPrepareSave">Save Bill Details</button><p class="tiny" id="wfBillPrepareStatus"></p><label>Bill PDF (optional, maximum 1 MB)<input type="file" id="wfBillUploadFile" accept="application/pdf,.pdf"></label><button type="button" class="secondary" id="wfBillUploadSave">Save PDF Attachment</button><p id="wfBillUploadFileStatus" class="tiny" aria-live="polite"></p><label>WhatsApp bill message * (sent as text if no PDF is attached)<textarea id="wfBillUploadCaption" rows="4" maxlength="1024" placeholder="Dear customer, this is your bill notification for ..."></textarea></label><label><input type="checkbox" id="wfBillUploadConfirm"> I have verified the client, WhatsApp number, bill amount, optional PDF and final message.</label><button type="button" id="wfBillUploadSend" disabled>Confirm &amp; Send Bill to Customer</button><p id="wfBillUploadResult" class="tiny" aria-live="polite"></p></div>
+<div id="wfBillListControls" class="fields"><input id="wfBillSearch" placeholder="Search client, invoice or collector"><select id="wfBillFilter"><option value="OPEN">Open Bills</option><option value="ALL">Bill History</option><option value="DRAFT">Pending Send</option><option value="PAID">Fully paid</option><option value="OVERDUE">Overdue</option></select></div></div><div class="table-scroll" id="wfBillList"></div></section>
+    </main>
+    <aside id="right" class="right">
+      <nav class="wf-side-tabs" aria-label="Right panel workspace" role="tablist">
+        <button type="button" id="wfSideClientTab" class="wf-side-tab selected" role="tab" aria-selected="true" aria-controls="wfClientWorkspacePanel">Client Workspace</button>
+        <button type="button" id="wfSideDashboardTab" class="wf-side-tab" role="tab" aria-selected="false" aria-controls="wfMyDashboardPanel">My Dashboard <span id="wfSideNewBadge" class="wf-side-new" hidden>0</span></button>
+      </nav>
+      <div class="panel-scroll wf-side-content" id="wfClientWorkspacePanel" role="tabpanel" aria-labelledby="wfSideClientTab"><div class="row"><h3>Client Workspace</h3><span id="selectedMobile" class="tiny">No client selected</span></div>
+      <section class="box" id="clientBox"><div class="box-title"><h4>Permanent client details</h4><span class="tiny">Profile summary · edit in Client Master</span></div><form id="clientForm"><div class="field"><label>WhatsApp mobile with country code *</label><input id="mobile" inputmode="numeric" maxlength="16" placeholder="9178..." required></div><div class="field"><label>Client name *</label><input id="clientName" maxlength="160" required></div><div class="fields"><div class="field"><label>Client type</label><select id="wf3fClientType"><option value="INDIVIDUAL">Individual</option><option value="PROPRIETORSHIP">Proprietorship</option><option value="PARTNERSHIP">Partnership</option><option value="LLP">LLP</option><option value="COMPANY">Company</option><option value="TRUST">Trust</option><option value="SOCIETY">Society</option><option value="OTHER">Other</option></select></div><div class="field"><label>Email</label><input id="wf3fEmail" maxlength="190" type="email" autocomplete="off"></div></div><div class="field"><label>Address</label><textarea id="wf3fAddress" maxlength="600" rows="2"></textarea></div><div class="wf3f-legacy" hidden aria-hidden="true"><select id="service"></select><input id="staff"><select id="stage"></select><select id="conversationState"><option value="OPEN">Open</option><option value="CLOSED">Closed</option></select><input id="followup" type="date"></div><button type="submit" id="saveClient">Edit in Client Master</button><span id="saveMessage" class="tiny" aria-live="polite"></span></form></section>
+      <section class="box wf-job-overview" id="wfJobOverview">
+        <div class="box-title"><h4>Current Client Jobs</h4><span class="tiny" id="wfJobsSummary">Select a client</span></div>
+        <div class="wf3j-heading-actions wf3-admin"><button type="button" id="wfQuickNewJob">+ New Job</button></div>
+        <p class="tiny">One card per job. Expand to see job stage, employee progress and follow-up.</p>
+        <div id="clientCases" class="muted">Select a client to view jobs.</div>
+        <div class="wf3j-legacy-controls" hidden>
+          <button type="button" id="wfQuickAssign">Reassign Job</button>
+          <button type="button" id="wfQuickFollowup">Set Follow-up</button>
+          <button type="button" id="wfQuickMyTasks">Open Staff Tasks</button>
+        </div>
+      </section>
+      <!-- Retain these IDs and forms for Phase 3 compatibility; the duplicate display is hidden. -->
+      <section class="box" id="wf3Right" hidden><div class="box-title"><h4>Assigned Work · Phase 3</h4><span id="wf3RightRole" class="tiny">My tasks</span></div><div id="wf3CurrentTasks" class="muted"></div>
+       <form id="wf3CreateForm" class="wf3-admin"><input type="hidden" id="wf3SourceMessage"><select id="wf3Case"></select><textarea id="wf3Title"></textarea><select id="wf3Assignee"></select><select id="wf3Priority"><option value="NORMAL">Normal</option><option value="LOW">Low</option><option value="HIGH">High</option><option value="URGENT">Urgent</option></select><input id="wf3Due" type="date"><textarea id="wf3Instructions"></textarea><button type="submit">Assign</button><button type="button" id="wf3ClearSource">Clear source</button></form>
+       <div id="wf3Notifications"></div>
+      </section>
+      <section class="box" id="caseBox"><div class="box-title"><h4>Edit Existing Job</h4><button type="button" class="secondary" id="addCaseForClient" hidden>+ New Job</button></div><form id="caseForm"><input id="caseId" type="hidden"><div class="field"><label>Case title *</label><input id="caseTitle" maxlength="180" required placeholder="GST October 2026 / IT Appeal"></div><div class="fields"><div class="field"><label>Service *</label><select id="caseService"></select></div><div class="field"><label>Stage *</label><select id="caseStage"></select></div><div class="field"><label>Assigned staff (legacy label; use Reassign to change employee)</label><input id="caseStaff" maxlength="100"></div><div class="field"><label>Follow-up date</label><input id="caseDate" type="date"></div></div><div class="field"><label>Reference / acknowledgement number</label><input id="caseRef" maxlength="120"></div><div class="field"><label>Next action</label><textarea id="caseAction" maxlength="500"></textarea></div><div class="inline-actions"><button type="submit" id="saveCase">Save Job Changes</button><button type="button" class="ghost" id="clearCase">Close Editor</button></div></form></section>
+      <section class="box" id="taskBox"><div class="box-title"><h4>Job Follow-up (Legacy)</h4><button type="button" id="addTaskForClient" class="secondary">+ Task</button></div><div id="clientTasks" class="muted">No case selected.</div><form id="taskForm"><input id="taskId" type="hidden"><div class="field"><label>Case *</label><select id="taskCase" required></select></div><div class="field"><label>Task / follow-up *</label><textarea id="taskText" maxlength="500" required placeholder="Collect documents / prepare GST return"></textarea></div><div class="fields"><div class="field"><label>Assigned staff</label><input id="taskStaff" maxlength="100"></div><div class="field"><label>Due date</label><input id="taskDate" type="date"></div><div class="field full"><label>Status</label><select id="taskStatus"><option value="PENDING">Pending</option><option value="IN_PROGRESS">In progress</option><option value="COMPLETED">Completed</option><option value="CANCELLED">Cancelled</option></select></div></div><div class="inline-actions"><button type="submit" id="saveTask">Save Task</button><button type="button" class="ghost" id="clearTask">Clear</button></div></form></section>
+      
+      <section class="box" id="templateBox"><div class="box-title"><h4>Saved Text Messages</h4><button type="button" class="secondary" id="refreshTemplates">Refresh</button></div><p class="tiny">Choose a saved Wayforward message, fill the details, edit the final text and send it as a normal WhatsApp reply. <strong>No Meta template approval is needed within the open customer-service window.</strong> Outside that window, ask the client to message first or use a separately Meta-approved template.</p><form id="templateForm"><div class="field"><label>Saved message *</label><select id="templateSelect" required><option value="">Refresh to load saved messages</option></select><p class="tiny" id="templateOrigin">Select a saved message from the database.</p></div><div id="templateParameters"></div><div class="field"><label for="templateFinalText">Final WhatsApp message · editable *</label><textarea id="templateFinalText" maxlength="4096" rows="6" required placeholder="Select a saved message and enter the variables."></textarea></div><div id="templatePreview" class="note" hidden></div><div class="field"><label><input type="checkbox" id="confirmTemplate" style="width:auto"> I reviewed the recipient and final message</label></div><button id="sendTemplate" type="submit">Send Text Message</button><p id="templateStatus" class="tiny" aria-live="polite"></p></form></section>
+
+      
+      <section class="box"><h4>Internal notes</h4><p class="tiny">Staff-only; never sent to WhatsApp.</p><div id="notes"></div><form id="noteForm"><div class="field"><label>Author</label><input id="author" maxlength="100" value="Staff"></div><div class="field"><label>Note</label><textarea id="note" maxlength="4000" placeholder="Follow-up / document status"></textarea></div><button type="submit" id="addNote" disabled>Save Note</button></form></section>
+    </div>
+    <div class="panel-scroll wf-side-content" id="wfMyDashboardPanel" role="tabpanel" aria-labelledby="wfSideDashboardTab" hidden>
+      <section class="box"><h4>Payment Follow-ups</h4><div id="wfBillDashCount" class="tiny"></div><div id="wfBillDashList"></div><button type="button" class="secondary" id="wfBillDashOpen">Open Billing &amp; Collections</button></section><div class="wf-dash-top"><div><h3 id="wfDashHeading">My Dashboard</h3><div class="tiny" id="wfDashWelcome">Tasks assigned to you</div></div><button class="secondary" id="wfDashRefresh" type="button">Refresh</button></div>
+      <div class="wf-dash-stats" id="wfDashStats" aria-label="Task status counters"></div>
+      <div class="wf-dash-filters" role="group" aria-label="Filter dashboard tasks">
+        <button type="button" class="wf-dash-filter active" data-wf-dash-filter="NEW">New</button>
+        <button type="button" class="wf-dash-filter" data-wf-dash-filter="PROGRESS">In Progress</button>
+        <button type="button" class="wf-dash-filter" data-wf-dash-filter="TODAY">Due Today</button>
+        <button type="button" class="wf-dash-filter" data-wf-dash-filter="OVERDUE">Overdue</button>
+        <button type="button" class="wf-dash-filter" data-wf-dash-filter="ALL">All</button>
+        <button type="button" class="wf-dash-filter" data-wf-dash-filter="REVIEW">Review</button>
+      </div>
+      <div class="wf-dash-list" id="wfDashTaskList" aria-live="polite"><div class="empty">Sign in to view assigned tasks.</div></div>
+      <section class="box wf-dash-notification" aria-label="Task notifications"><div class="box-title"><h4>Internal Notifications</h4><span class="tiny" id="wfDashUnread">0 unread</span></div><div id="wfDashNotificationList"></div></section>
+    </div></aside>
+  </div>
+</div><div id="responseModal" role="dialog" aria-modal="true" aria-labelledby="responseHeading"><div class="response-dialog">
+<div class="row"><h3 id="responseHeading">Unanswered WhatsApp messages</h3><button class="secondary" id="responseDismiss" type="button" aria-label="Dismiss notification">Dismiss</button></div>
+<p id="responseDescription">Customers waiting for an answer.</p>
+<div id="responseList"></div><div class="divider"></div>
+<label for="responseActor">Handled by / staff member</label><input id="responseActor" maxlength="100" placeholder="Staff name">
+<label for="responseReason" style="margin-top:8px">Reason (required when resolving without reply)</label><textarea id="responseReason" maxlength="500" placeholder="e.g., duplicate enquiry / phone call completed"></textarea>
+<div class="response-actions"><button type="button" id="responseOpen">Open chat</button><button type="button" class="secondary" id="responseSnooze">Snooze 1 hour</button><button type="button" class="secondary" id="responseResolve">No reply needed</button></div>
+<p class="tiny">Opening a chat does not dismiss its pending-response status. Resolve only with a reason. Staff assignment and escalations are visible to anyone logged into this pilot.</p>
+</div></div>
+
+<div id="wfUnifiedJobModal" hidden role="dialog" aria-modal="true" aria-labelledby="wfujHeading">
+ <div class="wfuj-dialog">
+  <div class="row" style="justify-content:space-between;align-items:center"><h3 id="wfujHeading">+ New Job · Assign Employee</h3><button type="button" class="secondary" id="wfujClose">✕ Close</button></div>
+  <p class="wfuj-help">One form for WhatsApp messages and Client Workspace. Saving creates a job, employee assignment and dashboard notification together.</p>
+  <div class="box"><strong id="wfujClient">Selected client</strong><div class="wfuj-help" id="wfujSourceInfo"></div></div>
+  <form id="wfUnifiedJobForm">
+   <input type="hidden" id="wfujMobile"><input type="hidden" id="wfujSourceId">
+   <div class="wfuj-grid">
+    <div class="field"><label for="wfujService">Service Category *</label><select id="wfujService" required></select></div>
+    <div class="field"><label for="wfujTitle">Job Title *</label><input id="wfujTitle" maxlength="180" placeholder="e.g. GST Notice Reply" required></div>
+    <div class="field"><label for="wfujYear">Financial Year / Assessment Year</label><input id="wfujYear" maxlength="40" placeholder="FY 2025-26 / AY 2026-27"></div>
+    <div class="field"><label for="wfujStaff">Assigned Employee *</label><select id="wfujStaff" required></select></div>
+    <div class="field"><label for="wfujPriority">Priority *</label><select id="wfujPriority"><option value="LOW">Low</option><option value="NORMAL" selected>Normal</option><option value="HIGH">High</option><option value="URGENT">Urgent</option></select></div>
+    <div class="field"><label for="wfujDue">Due Date *</label><input id="wfujDue" type="date" required></div>
+    <div class="field"><label for="wfujFollowup">Next Follow-up Date</label><input id="wfujFollowup" type="date"></div>
+    <div class="field"><label for="wfujReference">Reference / Acknowledgement</label><input id="wfujReference" maxlength="120"></div>
+   </div>
+   <p class="wfuj-help" id="wfujStaffHelp"></p>
+   <div class="field"><label for="wfujDescription">Job Description / Instructions *</label><textarea id="wfujDescription" rows="3" maxlength="3000" required></textarea></div>
+   <div class="field"><label for="wfujRemarks">Internal Remarks / Required Documents</label><textarea id="wfujRemarks" rows="2" maxlength="3000"></textarea></div>
+   <div class="wfuj-error" id="wfujError" role="alert"></div>
+   <div class="inline-actions"><button type="submit" id="wfujSave">Create Job & Notify Employee</button><button type="button" class="secondary" id="wfujCancel">Cancel</button></div>
+  </form>
+ </div>
+<dialog id="wfSettingsModal" class="wf-settings-dialog" aria-labelledby="wfSettingsTitle">
+  <div class="wf-settings-header"><div><h3 id="wfSettingsTitle">Admin Settings</h3><p class="tiny">Message response monitoring · 24/7 · Applies to all staff</p></div><button type="button" class="secondary" id="wfSettingsClose" aria-label="Close settings">✕</button></div>
+  <p class="tiny wf-settings-explain">Configure how often unanswered WhatsApp conversations generate reminders and when they are escalated. Changes are saved for all staff.</p>
+<form id="responseConfigForm" class="response-config wf3-settings">
+    <strong style="font-size:12px">24/7 reminder settings</strong>
+    <label for="reminderMinutes">Remind every (min)</label><input type="number" id="reminderMinutes" min="1" max="120" step="1" value="2" required>
+    <label for="escalationMinutes">Escalate after (min)</label><input type="number" id="escalationMinutes" min="1" max="10080" step="1" value="180" required>
+    <label for="responseSettingsActor">Changed by</label><input id="responseSettingsActor" maxlength="100" value="Staff" required style="width:110px">
+    <button type="submit" id="saveResponseSettings">Save settings</button>
+    <span id="responseSettingsMessage" class="tiny" aria-live="polite">Shared by all signed-in staff</span>
+  </form>
+</dialog>
+</div>
+<script src="./wayforward-inbox-client.js" defer></script><script src="./wayforward-phase3f-client.js" defer></script><script src="./wayforward-phase3-client.js" defer></script><script src="./wayforward-master-client.js" defer></script><script src="./wayforward-unified-jobs-client.js" defer></script><script id="wf-settings-dialog-script">
+document.addEventListener('DOMContentLoaded',()=>{
+ const $=id=>document.getElementById(id);
+ const gear=$('wfSettingsGear'), dlg=$('wfSettingsModal'), app=$('app');
+ if(!gear||!dlg||!app)return;
+ const isAdmin=()=>app.classList.contains('wf3-admin')&&!app.classList.contains('wf3-employee');
+ const sync=()=>{
+  gear.hidden=!isAdmin();
+  if(!isAdmin()&&dlg.open)dlg.close();
+ };
+ new MutationObserver(sync).observe(app,{attributes:true,attributeFilter:['class','style']});
+ sync();
+ gear.addEventListener('click',()=>{if(isAdmin()&&!dlg.open)dlg.showModal();});
+ $('wfSettingsClose').addEventListener('click',()=>dlg.close());
+ dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close();});
+});
+</script><style>.wf-bill-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.wf-bill-actions{display:flex;gap:6px;flex-wrap:wrap}.wf-bill-dialog{width:min(620px,94vw);max-height:88vh;overflow:auto;border:1px solid #c9d8e6;border-radius:12px;padding:20px;color:#173551;background:white}.wf-bill-dialog::backdrop{background:#142b4466}.wf-bill-dialog [hidden]{display:none!important}.wf-bill-dialog input,.wf-bill-dialog select,.wf-bill-dialog textarea{width:100%}.wf-bill-dialog label{display:block;margin:8px 0}.wf-bill-dialog input[type=checkbox]{width:auto}.wf-bill-dialog .row{margin-bottom:12px}</style>
+<dialog class="wf-bill-dialog" id="wfBillForm"><div class="row"><strong>Generate / Record Bill</strong><button type="button" class="secondary" data-wfb-close>Close</button></div><form id="wfBillCreateForm">
+<div class="box" style="margin:12px 0;background:#f3f7fb"><strong>Selected Client</strong><div id="wfBillSelectedClient" style="margin-top:6px" aria-live="polite">Select a registered client from Clients & Inbox.</div><p class="tiny" id="wfBillSelectedClientHelp">The client and WhatsApp number are linked automatically. To change client, select another conversation.</p></div>
+<label>Link Existing Job (optional)<select id="wfBillJobs" multiple size="4"></select></label><p class="tiny" id="wfBillJobInfo">Only jobs belonging to the selected client appear here.</p>
+<label>Invoice Number (optional)<input id="wfBillInvoice" maxlength="100" placeholder="Leave blank for an automatic draft reference"></label>
+<label>Service / Bill Description<textarea id="wfBillDescription" maxlength="500" rows="2" placeholder="e.g. Professional fee for GST return filing"></textarea></label>
+<div class="fields"><label>Bill Date<input id="wfBillDate" type="date"></label><label>Fee Amount (INR)<input id="wfBillFee" type="number" step="0.01" min="0" placeholder="5000"></label></div>
+<label>Collection Employee (optional)<select id="wfBillCollector"></select></label>
+<p class="tiny">One fee amount only. The bill is saved as Pending Send; the client is not messaged until you upload and confirm the PDF in Upload Bill. Payment reminders start after a successful bill send.</p>
+<button id="wfBillSave" type="submit">Save Bill &amp; Continue to Upload</button><p id="wfBillCreateStatus" aria-live="polite"></p></form></dialog>
+<dialog class="wf-bill-dialog" id="wfBillReminder"><div class="row"><strong>Payment Follow-up Reminder</strong><button class="secondary" type="button" data-wfb-close>Dismiss</button></div><h4 id="wfBillReminderTitle"></h4><p id="wfBillReminderDetails"></p><label>Editable reminder<textarea id="wfBillText" rows="5" maxlength="4096"></textarea></label><label><input type="checkbox" id="wfBillApproval"> I reviewed the recipient, outstanding balance and final message.</label><button type="button" id="wfBillSend" disabled>Send Reminder</button><p id="wfBillReminderStatus" aria-live="polite"></p><div class="wf-bill-actions"><button type="button" class="secondary" id="wfBilldefer">Remind Tomorrow</button><button type="button" class="secondary" id="wfBillpromise">Promise to Pay</button><button type="button" class="secondary" id="wfBillcall">Record phone follow-up</button><button type="button" class="secondary" id="wfBillPay">Bill Paid</button><button type="button" class="secondary" id="wfBillChat">Open Chat</button></div></dialog>
+<dialog class="wf-bill-dialog" id="wfBillAction"><div class="row"><strong id="wfBillActionTitle"></strong><button type="button" class="secondary" data-wfb-close>Close</button></div><form id="wfBillActionForm"><input type="hidden" id="wfBillActionKind"><div id="wfBillPaymentFields"><label>Amount received<input id="wfBillPayAmount" type="number" min="0.01" step="0.01"></label><label>Receipt date<input type="date" id="wfBillPayDate"></label><label>Payment mode<select id="wfBillPayMode"><option>UPI</option><option>Bank transfer</option><option>Cash</option><option>Cheque</option></select></label></div><div id="wfBillNextFields"><label>Next follow-up date<input type="date" id="wfBillNext"></label></div><label>Reference / notes<textarea id="wfBillActionNote" maxlength="500"></textarea></label><button id="wfBillActionSave">Save</button><p id="wfBillActionStatus" aria-live="polite"></p></form></dialog>
+<dialog class="wf-bill-dialog" id="wfBillHistory"><div class="row"><strong id="wfBillHistoryTitle"></strong><button class="secondary" type="button" data-wfb-close>Close</button></div><div id="wfBillHistoryRows"></div></dialog><dialog class="wf-bill-dialog" id="wfBillUploadDialog"><div class="row"><strong>Review &amp; Send Bill</strong><button type="button" class="secondary" data-wfb-close>Close</button></div><p id="wfBillUploadDetails"></p><label>Upload / replace PDF (optional, max 1 MB)<input type="file" accept="application/pdf,.pdf" id="wfBillRetryFile"></label><button type="button" id="wfBillAttach">Save PDF</button><p><a id="wfBillDownload" target="_blank" rel="noopener">Download original PDF</a></p><label><input type="checkbox" id="wfBillSendConfirm"> I verified the customer, amount, optional PDF and message.</label><button type="button" id="wfBillSendDoc" disabled>Send Bill to Customer</button><p id="wfBillUploadStatus" aria-live="polite"></p></dialog><script src="./wayforward-billing-client.js" defer></script></body></html>
