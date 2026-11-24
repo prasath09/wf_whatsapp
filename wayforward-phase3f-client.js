@@ -19,7 +19,7 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
    const summary=$('wf3fSummary'),jobs=$('wf3fJobs'),history=$('wf3fHistory');summary.replaceChildren();jobs.replaceChildren();history.replaceChildren();
    const cases=data.cases||[],tasks=data.tasks||[],events=data.events||[],jobHistory=data.jobHistory||[];
    const services=[...new Set(cases.map(c=>c.service).filter(Boolean))];
-   const active=cases.filter(c=>!['COMPLETED','REJECTED'].includes(c.stage)).length;
+   const active=cases.filter(c=>!['COMPLETED','REJECTED','CANCELLED'].includes(c.stage)).length;
    text(summary,'strong',data.client?.client_name||'Unnamed client');
    text(summary,'div','+'+data.client.mobile+' · '+(data.details.client_type||'INDIVIDUAL'),'tiny');
    for(const metric of [services.length+' service(s)',cases.length+' job(s)',active+' active job(s)',tasks.length+' task(s)'])text(summary,'span',metric,'wf3f-metric');
@@ -30,7 +30,7 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
    if(!cases.length)text(jobs,'p','No jobs yet. Create a job to link employee tasks and documents.','muted');
    for(const c of cases){
      const card=text(jobs,'div','','wf3f-job');text(card,'strong',c.title);
-     text(card,'p',`${c.service} · ${c.stage.replaceAll('_',' ')} · ${c.assigned_to||'Unassigned'} · ${c.followup_date?fmt(c.followup_date):'No follow-up date'}`);
+     text(card,'p',`${c.service} · ${(window.WFPhase3?.label(c.stage)||c.stage.replaceAll('_',' '))} · ${c.assigned_to||'Unassigned'} · ${c.followup_date?fmt(c.followup_date):'No follow-up date'}`);
      if(c.reference_no)text(card,'p','Reference: '+c.reference_no);
      if(c.next_action)text(card,'p','Next action: '+c.next_action);
      const childTasks=tasks.filter(t=>Number(t.case_id)===Number(c.id));

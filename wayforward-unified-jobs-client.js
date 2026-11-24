@@ -61,8 +61,9 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
  modal.addEventListener('click',event=>{if(event.target===modal)close();});
  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!modal.hidden)close();});
  // Assign the existing buttons to one canonical form, retaining historical edit controls.
- const entryIds=['wfQuickNewJob','addCaseForClient','newCase','newTask','addTaskForClient','wf3fNewJob'];
+ const entryIds=['wfQuickNewJob','addCaseForClient','wf3fNewJob'];
  for(const id of entryIds){const b=el(id);if(b)b.onclick=()=>open();}
+ for(const id of ['newCase','newTask','addTaskForClient','wfmAddJob']){const button=el(id);if(button){button.hidden=true;button.onclick=null;}}
  // Existing case/task create forms stay in DOM for historical editing, but are no longer entry points.
  // Dynamic incoming WhatsApp message buttons use capture so the older handler cannot open the legacy form.
  document.addEventListener('click',e=>{

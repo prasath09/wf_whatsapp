@@ -8,7 +8,9 @@ const normalized=v=>String(v??'').trim().toLowerCase();
 const digits=v=>String(v??'').replace(/\D/g,'');
 const validMobile=v=>/^\d{8,15}$/.test(digits(v));
 const openTask=t=>!['COMPLETED','CANCELLED'].includes(t.status);
-const openCase=c=>!['COMPLETED','REJECTED'].includes(c.stage);
+const jobStage=c=>c.workflow_stage||c.stage;
+const jobLabel=s=>window.WFPhase3?.label(s)||String(s||'').replaceAll('_',' ');
+const openCase=c=>!['COMPLETED','REJECTED','CANCELLED'].includes(jobStage(c));
 const currentClient=()=>({...state.conversations.find(c=>c.mobile===state.mobile),...state.data.clients.find(c=>c.mobile===state.mobile)});
 const clientName=m=>state.data.clients.find(c=>c.mobile===m)?.client_name||state.conversations.find(c=>c.mobile===m)?.client_name||('+'+m);
 const caseById=id=>state.data.cases.find(c=>Number(c.id)===Number(id));
@@ -69,8 +71,8 @@ function drawList(){const target=$('conversations');target.replaceChildren();con
 }
 function refreshFilters(){const names=[...new Set([...state.data.cases,...state.data.tasks].map(x=>x.assigned_to).filter(Boolean))].sort();for(const id of ['caseStaffFilter','dueStaffFilter'])setOptions($(id),names,'All staff');}
 function getFollowups(){const result=[],today=state.data.today||new Date().toISOString().slice(0,10);
- state.data.cases.filter(c=>openCase(c)&&c.followup_date).forEach(c=>result.push({key:'case-'+c.id,type:'case',id:c.id,caseId:c.id,mobile:c.mobile,caseTitle:c.title,service:c.service,text:c.next_action||'Case follow-up',assigned_to:c.assigned_to||'',date:fmtDate(c.followup_date),stage:c.stage}));
- state.data.tasks.filter(openTask).forEach(t=>{const c=caseById(t.case_id);if(!c)return;result.push({key:'task-'+t.id,type:'task',id:t.id,caseId:c.id,mobile:c.mobile,caseTitle:c.title,service:c.service,text:t.task_text,assigned_to:t.assigned_to||'',date:fmtDate(t.due_date),stage:t.status});});
+ state.data.cases.filter(c=>openCase(c)&&c.followup_date).forEach(c=>result.push({key:'case-'+c.id,type:'case',id:c.id,caseId:c.id,mobile:c.mobile,caseTitle:c.title,service:c.service,text:c.next_action||'Case follow-up',assigned_to:c.assigned_to||'',date:fmtDate(c.followup_date),stage:jobStage(c)}));
+ state.data.tasks.filter(openTask).forEach(t=>{const c=caseById(t.case_id);if(!c)return;result.push({key:'task-'+t.id,type:'task',id:t.id,caseId:c.id,mobile:c.mobile,caseTitle:c.title,service:c.service,text:t.task_text,assigned_to:t.assigned_to||'',date:fmtDate(t.due_date),stage:t.current_status||t.status});});
  return result.sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999'));
 }
 function renderKPIs(){const clients=state.data.clients,cases=state.data.cases,tasks=state.data.tasks,due=getFollowups().filter(x=>x.date);const today=state.data.today||new Date().toISOString().slice(0,10);$('kClients').textContent=clients.length;$('kCases').textContent=cases.filter(openCase).length;$('kToday').textContent=due.filter(x=>x.date===today).length;$('kOverdue').textContent=due.filter(x=>x.date<today).length;$('kPending').textContent=tasks.filter(openTask).length;}
@@ -79,7 +81,7 @@ function action(row,title,callback){const cell=row.insertCell(),btn=document.cre
 function blankRow(tbody,text,colspan){const tr=tbody.insertRow(),cell=tr.insertCell();cell.colSpan=colspan;cell.className='muted';cell.textContent=text;}
 function renderCases(){const tbody=$('caseRows');tbody.replaceChildren();const q=normalized($('caseSearch').value),staff=$('caseStaffFilter').value,onlySelected=$('caseScope').value==='selected';const cases=state.data.cases.filter(c=>(!staff||c.assigned_to===staff)&&(!onlySelected||c.mobile===state.mobile)&&[c.title,c.service,c.reference_no,c.client_name,c.mobile,c.assigned_to].some(x=>normalized(x).includes(q)));
  if(!cases.length)return blankRow(tbody,'No matching cases. Select a client and create a case.',5);
- cases.forEach(c=>{const tr=tbody.insertRow();td(tr,clientName(c.mobile)+'\n'+c.title+' · '+c.service).style.whiteSpace='pre-line';td(tr,c.stage.replaceAll('_',' '));td(tr,c.assigned_to||'—');td(tr,fmtDate(c.followup_date)||'—');action(tr,'Open',()=>openCaseEditor(c.id));});
+ cases.forEach(c=>{const tr=tbody.insertRow();td(tr,clientName(c.mobile)+'\n'+c.title+' · '+c.service).style.whiteSpace='pre-line';td(tr,jobLabel(jobStage(c)));td(tr,c.assigned_to||'—');td(tr,fmtDate(c.followup_date)||'—');action(tr,'Open',()=>openCaseEditor(c.id));});
 }
 function renderFollowups(){const tbody=$('followupRows');tbody.replaceChildren();const scope=$('dueScope').value,staff=$('dueStaffFilter').value,today=state.data.today||new Date().toISOString().slice(0,10);const rows=getFollowups().filter(x=>(!staff||x.assigned_to===staff)&&(scope==='all'||(scope==='today'&&x.date===today)||(scope==='overdue'&&x.date&&x.date<today)||(scope==='upcoming'&&x.date>today)));
  if(!rows.length)return blankRow(tbody,'No matching follow-ups.',5);
@@ -133,8 +135,8 @@ function renderClientCases(){
   const name=document.createElement('strong');name.textContent=c.title;top.append(name);
   const meta=document.createElement('span');meta.className='tiny';meta.textContent=c.service+' · '+(c.assigned_to||'Unassigned');top.append(meta);
   const labels=document.createElement('span');labels.className='wf3j-status-row';
-  const stage=document.createElement('span');stage.className='wf-job-status'+(!openCase(c)?' completed':'');stage.textContent='Job: '+c.stage.replaceAll('_',' ');labels.append(stage);
-  const assignment=document.createElement('span');assignment.className='wf3j-assignment'+(!currentTask?' missing':'');assignment.textContent=currentTask?'Employee: '+currentTask.current_status.replaceAll('_',' '):'Employee assignment missing';labels.append(assignment);
+  const stage=document.createElement('span');stage.className='wf-job-status'+(!openCase(c)?' completed':'');stage.textContent=jobLabel(jobStage(c));labels.append(stage);
+  const assignment=document.createElement('span');assignment.className='wf3j-assignment'+(!currentTask?' missing':'');assignment.textContent=currentTask?'Employee: '+currentTask.current_status.replaceAll('_',' '):'Employee assignment missing';if(!Number(c.workflow_linked)&&!currentTask)labels.append(assignment);
   top.append(labels);
   const arrow=document.createElement('span');arrow.className='wf3j-expand-icon';arrow.textContent=expanded?'▴':'▾';top.append(arrow);
   top.onclick=()=>{wf3jExpandedJob=expanded?null:c.id;renderClientCases();};box.append(top);
@@ -144,11 +146,11 @@ function renderClientCases(){
    if(c.next_action){const next=document.createElement('div');next.className='tiny';next.textContent='Next action: '+c.next_action;detail.append(next);}
    if(c.reference_no){const ref=document.createElement('div');ref.className='tiny';ref.textContent='Reference: '+c.reference_no;detail.append(ref);}
    if(currentTask){const assigned=document.createElement('div');assigned.className='tiny';assigned.textContent='Employee login: '+(currentTask.assignee_name||currentTask.assignee_username||'Unassigned')+' · '+(tasks.length>1?tasks.length+' linked work records':'1 linked work record');detail.append(assigned);}
-   else {const note=document.createElement('div');note.className='wf3j-warning';note.textContent='No Phase 3 assignment found. This can happen with older jobs or a staff-name mismatch. Review before creating new work.';detail.append(note);}
+   else {const note=document.createElement('div');note.className='wf3j-warning';note.textContent=Number(c.workflow_linked)?'Assigned work belongs to another employee or is outside the current task list.':'No workflow assignment found for this legacy job. Review before creating new work.';detail.append(note);}
    const actions=document.createElement('div');actions.className='wf3j-actions';
    if(window.WFPhase3?.isAdmin?.()){
     wf3jButton(actions,'Edit Job',()=>openCaseEditor(c.id));
-    if(c.stage==='COMPLETED'||currentTask?.current_status==='COMPLETED')wf3jButton(actions,'Upload & Send Bill',()=>window.WFBilling?.newBill(c.id));
+    // Billing is managed in the central Billing & Collections tab.
     wf3jButton(actions,'Reassign',()=>wf3jOpenTask(c.id));
     wf3jButton(actions,'Follow-up',()=>{openCaseEditor(c.id);$('caseDate').focus();});
    }
@@ -229,9 +231,9 @@ async function refreshData(){if(!state.logged||state.loading)return;state.loadin
 async function refreshAll(){await Promise.all([loadList(),refreshData()]);if(state.mobile)await loadThread();}
 function revealRight(){const el=$('right');if(el.classList.contains('collapsed')){$('layout').classList.remove('collapsed');el.classList.remove('collapsed');$('togglePanel').textContent='Hide client panel';}}
 function goRight(id){revealRight();const el=$(id);el.scrollIntoView({behavior:'smooth',block:'start'});}
-function clearCase(){document.getElementById('caseBox')?.classList.remove('wf3j-editing');$('caseForm').reset();$('caseId').value='';state.editingCase=null;$('caseStage').value='ENQUIRY';$('caseService').value='GST';}
+function clearCase(){document.getElementById('caseBox')?.classList.remove('wf3j-editing');$('caseForm').reset();$('caseStage').disabled=false;$('caseStaff').readOnly=false;$('caseId').value='';state.editingCase=null;$('caseStage').value='ENQUIRY';$('caseService').value='GST';}
 function clearTask(){$('taskForm').reset();$('taskId').value='';state.editingTask=null;fillCaseSelect();$('taskStatus').value='PENDING';}
-async function openCaseEditor(id){const c=caseById(id);if(!c)return;setMobile(c.mobile);$('current').textContent=clientName(c.mobile)+' · +'+c.mobile;clearCase();document.getElementById('caseBox')?.classList.add('wf3j-editing');$('caseId').value=c.id;$('caseTitle').value=c.title;$('caseService').value=c.service;$('caseRef').value=c.reference_no||'';$('caseStaff').value=c.assigned_to||'';$('caseStage').value=c.stage;$('caseDate').value=fmtDate(c.followup_date);$('caseAction').value=c.next_action||'';goRight('caseBox');}
+async function openCaseEditor(id){const c=caseById(id);if(!c)return;setMobile(c.mobile);$('current').textContent=clientName(c.mobile)+' · +'+c.mobile;clearCase();document.getElementById('caseBox')?.classList.add('wf3j-editing');$('caseId').value=c.id;$('caseTitle').value=c.title;$('caseService').value=c.service;$('caseRef').value=c.reference_no||'';$('caseStaff').value=c.assigned_to||'';const stageField=$('caseStage'),shownStage=jobStage(c);if(![...stageField.options].some(o=>o.value===shownStage))option(stageField,shownStage,jobLabel(shownStage));stageField.value=shownStage;stageField.disabled=!!Number(c.workflow_linked)||!!wf3jRelatedTasks(c.id).length;$('caseStaff').readOnly=stageField.disabled;$('caseDate').value=fmtDate(c.followup_date);$('caseAction').value=c.next_action||'';goRight('caseBox');}
 async function openTaskEditor(id){if(window.WFPhase3?.hasTask(id)||window.WFPhase3&&!window.WFPhase3.isAdmin()){await window.WFPhase3.openTaskId(id);return;}const t=state.data.tasks.find(x=>Number(x.id)===Number(id));if(!t)return;const c=caseById(t.case_id);if(c){setMobile(c.mobile);$('current').textContent=clientName(c.mobile)+' · +'+c.mobile;}clearTask();fillCaseSelect(t.case_id);$('taskId').value=t.id;$('taskCase').value=t.case_id;$('taskText').value=t.task_text;$('taskStaff').value=t.assigned_to||'';$('taskDate').value=fmtDate(t.due_date);$('taskStatus').value=t.status;goRight('taskBox');}
 async function saveClient(e){e.preventDefault();const mobile=digits($('mobile').value),name=$('clientName').value.trim();if(!validMobile(mobile)||!name){status('Enter a valid mobile with country code and client name.',true);return;}const button=$('saveClient');button.disabled=true;try{await api('phase3/client-profile','POST',{mobile,name,clientType:$('wf3fClientType').value,email:$('wf3fEmail').value,address:$('wf3fAddress').value});state.mobile=mobile;state.newClient=false;$('saveMessage').textContent='Saved';await refreshAll();renderWorkspace();document.dispatchEvent(new CustomEvent('wf3f:client',{detail:{mobile}}));$('current').textContent=name+' · +'+mobile;status('Client profile saved');}catch(err){status(err.message,true);$('saveMessage').textContent=err.message;}finally{button.disabled=false;}}
 async function saveCase(e){e.preventDefault();if(!$('caseId').value)return window.WFUnifiedJobs?.open({mobile:state.mobile});if(!validMobile(state.mobile)){status('Select or create a client first.',true);return;}const button=$('saveCase');button.disabled=true;try{await api('case','POST',{id:$('caseId').value||null,mobile:state.mobile,title:$('caseTitle').value,service:$('caseService').value,referenceNo:$('caseRef').value,assignedTo:$('caseStaff').value,stage:$('caseStage').value,followupDate:$('caseDate').value,nextAction:$('caseAction').value});clearCase();await refreshData();fillDocumentCases();status('Case saved');}catch(err){status(err.message,true);}finally{button.disabled=false;}}

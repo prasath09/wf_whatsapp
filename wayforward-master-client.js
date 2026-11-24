@@ -144,7 +144,7 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
  el('wfmNewLeft').onclick=()=>start('WALK_IN');el('wfmNewProfile').onclick=()=>start('WALK_IN');el('wfmNewInProfile').onclick=()=>start('WALK_IN');
  el('wfmCreateFromChat').onclick=()=>start('WHATSAPP',state.mobile);el('wfmLinkFromChat').onclick=()=>openLink(state.mobile);
  el('wfmClear').onclick=()=>start('WALK_IN');el('wfmForm').onsubmit=save;
- el('wfmAddJob').onclick=async()=>{const r=masterState.selected;if(!r)return;const mobile=(r.linked_mobiles||r.primary_mobile||'').split(',')[0];if(!mobile)return message('Add a valid mobile to the Client Master to create jobs in the existing CRM.',true);await selectClient(mobile);$('addCaseForClient').click();};
+ el('wfmAddJob').hidden=true;el('wfmAddJob').onclick=null;
  el('wfmRefresh').onclick=fetchRecords;el('wfmLookup').oninput=searchResults;el('wfmDirectorySearch').oninput=listDirectory;
  document.querySelectorAll('[data-wfm-scope]').forEach(b=>b.onclick=()=>{state.masterScope=b.dataset.wfmScope;document.querySelectorAll('[data-wfm-scope]').forEach(x=>x.classList.toggle('selected',x===b));drawList();});
  document.addEventListener('wf3f:client',e=>{void updateChatActions(e.detail?.mobile||'');});

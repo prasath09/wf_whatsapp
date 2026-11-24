@@ -8,6 +8,8 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
  const isAdmin=()=>wf.user?.role==='ADMIN';
  const isLead=()=>wf.user?.role==='TEAM_LEAD';
  const fmt=d=>d?String(d).slice(0,10):'—';
+ const label=s=>({ACKNOWLEDGED:'In Progress',ASSIGNED:'Assigned',IN_PROGRESS:'In Progress',WAITING_CLIENT:'Waiting for Client',SUBMITTED_REVIEW:'Pending Admin Review',COMPLETED:'Job Done',REOPENED:'Returned for Correction',CANCELLED:'Cancelled'})[s]||String(s||'').replaceAll('_',' ');
+ const actionLabel=s=>({ACKNOWLEDGED:'Acknowledge Job',IN_PROGRESS:'Resume Work',WAITING_CLIENT:'Waiting for Client',SUBMITTED_REVIEW:'Job Completed',COMPLETED:'Job Done',REOPENED:'Return for Correction',CANCELLED:'Cancel Job'})[s]||label(s);
  function message(x,error=false){status(x,error);}
  async function get(route){return api('phase3/'+route);}
  async function post(route,data){return api('phase3/'+route,'POST',data);}
@@ -19,20 +21,20 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
  function miniButton(container,text,cb,primary=false){const btn=document.createElement('button');btn.type='button';btn.textContent=text;btn.className=primary?'':'secondary';btn.style.marginRight='6px';btn.style.marginTop='6px';btn.onclick=cb;container.append(btn);return btn;}
  async function openTask(t){await selectClient(t.mobile);renderTasks();switchView('chat');window.WFRightDashboard?.show('dashboard');window.WFRightDashboard?.selectTask(t.id);message('Opened linked client conversation and assigned task.');}
  async function changeStatus(task,newStatus){let comment='';if(['WAITING_CLIENT','REOPENED','CANCELLED'].includes(newStatus)){const ans=prompt('Reason / instruction for '+newStatus.replaceAll('_',' ')+' (required)');if(ans===null)return;comment=ans.trim();if(!comment){message('Reason required.',true);return;}}
- else if(newStatus==='SUBMITTED_REVIEW'){comment=(prompt('Optional work summary for Admin review:')||'').trim();}
- try{await post('tasks/'+task.id+'/status',{status:newStatus,comment});message('Task status updated: '+newStatus.replaceAll('_',' '));await refresh();}catch(e){message(e.message,true);}
+ else if(newStatus==='SUBMITTED_REVIEW'){const summary=prompt('Optional work summary for Admin review:');if(summary===null)return;comment=summary.trim();}
+ try{const result=await post('tasks/'+task.id+'/status',{status:newStatus,comment});message('Job status updated: '+label(result.status));await refreshData();await refresh();}catch(e){message(e.message,true);}
  }
- async function reassignTask(t){const ans=prompt('Enter employee username to reassign:',t.assignee_username);if(ans===null)return;const employee=wf.staff.find(s=>s.username===ans.trim().toLowerCase()&&s.active);if(!employee){message('Select a valid active employee username.',true);return;}const comment=(prompt('Reason for reassignment (optional):')||'').trim();try{await post('tasks/'+t.id+'/reassign',{assigneeId:employee.id,comment});await refresh();message('Task reassigned.');}catch(e){message(e.message,true);}}
+ async function reassignTask(t){const ans=prompt('Enter employee username to reassign:',t.assignee_username);if(ans===null)return;const employee=wf.staff.find(s=>s.username===ans.trim().toLowerCase()&&s.active);if(!employee){message('Select a valid active employee username.',true);return;}const comment=(prompt('Reason for reassignment (optional):')||'').trim();try{await post('tasks/'+t.id+'/reassign',{assigneeId:employee.id,comment});await refreshData();await refresh();message('Task reassigned.');}catch(e){message(e.message,true);}}
  async function history(t){try{const r=await get('tasks/'+t.id+'/events');alert('Task history:\n'+(r.rows||[]).map(e=>[fmt(e.created_at),e.actor_name,e.from_status||'—','→',e.to_status,e.comment||''].join(' ')).join('\n').slice(0,3500));}catch(e){message(e.message,true);}}
  function taskCard(t){const box=document.createElement('article');box.className='wf3-task';cardText(box,'strong',t.task_text);cardText(box,'small',(t.client_name||'+'+t.mobile)+' · '+t.case_title+' · Assigned: '+t.assignee_name);
-  const info=document.createElement('div');info.style.marginTop='7px';box.append(info);cardText(info,'span',t.current_status.replaceAll('_',' ')+' · '+t.priority+' · Due '+fmt(t.due_date),'wf3-pill');
+  const info=document.createElement('div');info.style.marginTop='7px';box.append(info);cardText(info,'span',label(t.current_status)+' · '+t.priority+' · Due '+fmt(t.due_date),'wf3-pill');
   if(t.instructions)cardText(box,'p',t.instructions,'tiny');
   miniButton(box,'Open client chat',()=>openTask(t));miniButton(box,'History',()=>history(t));
   const own=Number(t.assignee_id)===Number(wf.user?.id);
-  const actions=own?{ASSIGNED:['ACKNOWLEDGED','IN_PROGRESS'],ACKNOWLEDGED:['IN_PROGRESS','WAITING_CLIENT','SUBMITTED_REVIEW'],IN_PROGRESS:['WAITING_CLIENT','SUBMITTED_REVIEW'],WAITING_CLIENT:['IN_PROGRESS','SUBMITTED_REVIEW'],REOPENED:['ACKNOWLEDGED','IN_PROGRESS']} : {};
+  const actions=own?{ASSIGNED:['ACKNOWLEDGED'],ACKNOWLEDGED:['IN_PROGRESS','WAITING_CLIENT','SUBMITTED_REVIEW'],IN_PROGRESS:['WAITING_CLIENT','SUBMITTED_REVIEW'],WAITING_CLIENT:['IN_PROGRESS','SUBMITTED_REVIEW'],REOPENED:['ACKNOWLEDGED']} : {};
   const adminActions=isAdmin()?{SUBMITTED_REVIEW:['COMPLETED','REOPENED'],COMPLETED:['REOPENED'],ASSIGNED:['CANCELLED'],ACKNOWLEDGED:['CANCELLED'],IN_PROGRESS:['CANCELLED'],WAITING_CLIENT:['CANCELLED'],REOPENED:['CANCELLED']}:{};
   const choices=[...(actions[t.current_status]||[]),...(adminActions[t.current_status]||[])];
-  for(const x of [...new Set(choices)])miniButton(box,x.replaceAll('_',' '),()=>changeStatus(t,x),x==='COMPLETED');
+  for(const x of [...new Set(choices)])miniButton(box,actionLabel(x),()=>changeStatus(t,x),x==='COMPLETED');
   if(isAdmin()&&t.current_status!=='CANCELLED')miniButton(box,'Reassign',()=>reassignTask(t));
   return box;
  }
@@ -42,7 +44,7 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
   if(!tasks.length)cardText(list,'div','No matching tasks.','empty');for(const t of tasks)list.append(taskCard(t));
   const right=el('wf3CurrentTasks');right.replaceChildren();const related=wf.tasks.filter(t=>t.mobile===state.mobile);
   if(!related.length)cardText(right,'p',state.mobile?'No Phase 3 tasks for this client.':'Select a client to view linked tasks.','tiny');
-  for(const t of related.slice(0,12)){const row=document.createElement('div');row.className='wf3-task';cardText(row,'strong',t.task_text);cardText(row,'small',t.assignee_name+' · '+t.current_status.replaceAll('_',' '));miniButton(row,'View task',()=>window.WFRightDashboard?.selectTask(t.id));right.append(row);}
+  for(const t of related.slice(0,12)){const row=document.createElement('div');row.className='wf3-task';cardText(row,'strong',t.task_text);cardText(row,'small',t.assignee_name+' · '+label(t.current_status));miniButton(row,'View task',()=>window.WFRightDashboard?.selectTask(t.id));right.append(row);}
   updateCaseOptions();updateStaffOptions();
  }
  function renderStaff(){const host=el('wf3StaffList');host.replaceChildren();if(!isAdmin())return;
@@ -61,7 +63,10 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
   }
  }
  async function refresh(){if(!state.logged||wf.busy)return;wf.busy=true;
-  try{const [user,staff,tasks,notifications]=await Promise.all([api('session'),get('staff'),get('tasks'),get('notifications')]);wf.user=user.user;wf.staff=staff.rows||[];wf.tasks=tasks.rows||[];wf.notifications=notifications.rows||[];
+  try{const [user,staff,tasks,notifications]=await Promise.all([api('session'),get('staff'),get('tasks'),get('notifications')]);const before=wf.tasks.map(t=>[t.id,t.current_status,t.assignee_id,t.updated_at].join(':')).join('|');
+   wf.user=user.user;wf.staff=staff.rows||[];wf.tasks=tasks.rows||[];wf.notifications=notifications.rows||[];
+   const after=wf.tasks.map(t=>[t.id,t.current_status,t.assignee_id,t.updated_at].join(':')).join('|');
+   if(wf.booted&&before!==after)await refreshData();
    renderTasks();renderStaff();renderNotifications();document.dispatchEvent(new CustomEvent('wf3:updated',{detail:{user:wf.user,tasks:wf.tasks,notifications:wf.notifications}}));
    const newAlerts=wf.notifications.filter(n=>!n.read_at&&!wf.seen.has(String(n.id)));
    // Avoid spamming a desktop notification on initial page load.
@@ -70,7 +75,7 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
  }
  function applyRole(user){wf.user=user;const employee=!!user&&user.role!=='ADMIN';el('app').classList.toggle('wf3-employee',employee);el('app').classList.toggle('wf3-admin',!!user&&user.role==='ADMIN');
   el('wf3Role').textContent=user?user.displayName+' · '+user.role:'Staff';el('wf3RightRole').textContent=isAdmin()?'Create & assign':'My assigned tasks';
-  document.dispatchEvent(new CustomEvent('wf3:role',{detail:{user}}));if(employee){for(const id of ['newClient','newCase','addCaseForClient','newTask','addTaskForClient','newDocument']){const x=el(id);if(x)x.disabled=true;}}
+  document.dispatchEvent(new CustomEvent('wf3:role',{detail:{user}}));for(const id of ['newClient','newCase','addCaseForClient','newTask','addTaskForClient','newDocument']){const x=el(id);if(x)x.disabled=employee;}
  }
  async function boot(){try{const s=await api('session');if(!s.authenticated)return;applyRole(s.user);wf.booted=false;await refresh();wf.booted=true;}catch(e){message(e.message,true);}}
  function reset(){wf.user=null;wf.staff=[];wf.tasks=[];wf.notifications=[];wf.booted=false;wf.seen.clear();document.dispatchEvent(new CustomEvent('wf3:reset'));}
@@ -78,7 +83,7 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
   if(!selectedCases().length){message('Create a client case before assigning a task from this message.',true);goRight('caseBox');return;}
   el('wf3SourceMessage').value=String(id);el('wf3Title').value=('Follow up: '+String(body||'').slice(0,430)).slice(0,500);goRight('wf3Right');el('wf3Title').focus();message('Task linked to selected WhatsApp message #'+id);
  }
- window.WFPhase3={boot,refresh,reset,isAdmin,fromMessage,taskCard,openTask,changeStatus,getDashboardData:()=>({user:wf.user,tasks:wf.tasks,notifications:wf.notifications}),hasTask:id=>wf.tasks.some(t=>Number(t.id)===Number(id)),openTaskId:async id=>{const t=wf.tasks.find(t=>Number(t.id)===Number(id));if(t)await openTask(t);else switchView('phase3');}};
+ window.WFPhase3={boot,refresh,reset,isAdmin,label,fromMessage,taskCard,openTask,changeStatus,getDashboardData:()=>({user:wf.user,tasks:wf.tasks,notifications:wf.notifications}),hasTask:id=>wf.tasks.some(t=>Number(t.id)===Number(id)),openTaskId:async id=>{const t=wf.tasks.find(t=>Number(t.id)===Number(id));if(t)await openTask(t);else switchView('phase3');}};
  el('wf3Refresh').onclick=refresh;el('wf3TaskFilter').onchange=renderTasks;
  el('wf3Bell').onclick=()=>{window.WFRightDashboard?.show('dashboard');el('wfDashNotificationList')?.scrollIntoView({behavior:'smooth',block:'nearest'});};
  el('wf3ClearSource').onclick=()=>{el('wf3SourceMessage').value='';message('Source message link cleared.');};
