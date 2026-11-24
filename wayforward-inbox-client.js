@@ -22,7 +22,7 @@ async function api(route,method='GET',payload){
  if(!res.ok||!body.ok){if(res.status===401)showLogin();throw Error(body.message||'Server error ('+res.status+')');}
  return body;
 }
-function showLogin(){$('login').style.display='block';$('app').style.display='none';$('logout').style.display='none';state.logged=false;}
+function showLogin(){$('login').style.display='block';$('app').style.display='none';$('logout').style.display='none';state.logged=false;document.dispatchEvent(new CustomEvent('wf3:reset'));}
 function showApp(){$('login').style.display='none';$('app').style.display='block';$('logout').style.display='inline-block';state.logged=true;}
 function option(select,value,label){select.add(new Option(label,value));}
 function setOptions(select,items,placeholder){const previous=select.value;select.replaceChildren(new Option(placeholder,''));items.forEach(x=>option(select,x,x));if([...select.options].some(o=>o.value===previous))select.value=previous;}
@@ -72,18 +72,24 @@ function drawList(){const target=$('conversations');target.replaceChildren();con
 function refreshFilters(){const names=[...new Set([...state.data.cases,...state.data.tasks].map(x=>x.assigned_to).filter(Boolean))].sort();for(const id of ['caseStaffFilter','dueStaffFilter'])setOptions($(id),names,'All staff');}
 function getFollowups(){const result=[],today=state.data.today||new Date().toISOString().slice(0,10);
  state.data.cases.filter(c=>openCase(c)&&c.followup_date).forEach(c=>result.push({key:'case-'+c.id,type:'case',id:c.id,caseId:c.id,mobile:c.mobile,caseTitle:c.title,service:c.service,text:c.next_action||'Case follow-up',assigned_to:c.assigned_to||'',date:fmtDate(c.followup_date),stage:jobStage(c)}));
- state.data.tasks.filter(openTask).forEach(t=>{const c=caseById(t.case_id);if(!c)return;result.push({key:'task-'+t.id,type:'task',id:t.id,caseId:c.id,mobile:c.mobile,caseTitle:c.title,service:c.service,text:t.task_text,assigned_to:t.assigned_to||'',date:fmtDate(t.due_date),stage:t.current_status||t.status});});
+
  return result.sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999'));
 }
 function renderKPIs(){const clients=state.data.clients,cases=state.data.cases,tasks=state.data.tasks,due=getFollowups().filter(x=>x.date);const today=state.data.today||new Date().toISOString().slice(0,10);$('kClients').textContent=clients.length;$('kCases').textContent=cases.filter(openCase).length;$('kToday').textContent=due.filter(x=>x.date===today).length;$('kOverdue').textContent=due.filter(x=>x.date<today).length;$('kPending').textContent=tasks.filter(openTask).length;}
 function td(row,text){const cell=row.insertCell();cell.textContent=String(text??'');return cell;}
 function action(row,title,callback){const cell=row.insertCell(),btn=document.createElement('button');btn.type='button';btn.className='secondary';btn.textContent=title;btn.onclick=callback;cell.append(btn);}
 function blankRow(tbody,text,colspan){const tr=tbody.insertRow(),cell=tr.insertCell();cell.colSpan=colspan;cell.className='muted';cell.textContent=text;}
-function renderCases(){const tbody=$('caseRows');tbody.replaceChildren();const q=normalized($('caseSearch').value),staff=$('caseStaffFilter').value,onlySelected=$('caseScope').value==='selected';const cases=state.data.cases.filter(c=>(!staff||c.assigned_to===staff)&&(!onlySelected||c.mobile===state.mobile)&&[c.title,c.service,c.reference_no,c.client_name,c.mobile,c.assigned_to].some(x=>normalized(x).includes(q)));
- if(!cases.length)return blankRow(tbody,'No matching cases. Select a client and create a case.',5);
- cases.forEach(c=>{const tr=tbody.insertRow();td(tr,clientName(c.mobile)+'\n'+c.title+' · '+c.service).style.whiteSpace='pre-line';td(tr,jobLabel(jobStage(c)));td(tr,c.assigned_to||'—');td(tr,fmtDate(c.followup_date)||'—');action(tr,'Open',()=>openCaseEditor(c.id));});
+function wf4Due(c){const all=state.data.tasks.filter(t=>Number(t.case_id)===Number(c.id));const active=all.filter(t=>!['COMPLETED','CANCELLED'].includes(t.current_status||t.status));return (active.length?active:all).map(t=>fmtDate(t.due_date)).filter(Boolean).sort()[0]||'';}
+function wf4Late(c){const d=wf4Due(c);return openCase(c)&&!!d&&d<(state.data.today||new Date().toISOString().slice(0,10));}
+function wf4Match(c,k){return k==='ALL'||(k==='ACTIVE'&&openCase(c))||(k==='OVERDUE'&&wf4Late(c))||(k==='IN_PROGRESS'&&['IN_PROGRESS','ACKNOWLEDGED','REOPENED'].includes(jobStage(c)))||jobStage(c)===k;}
+function wf4Tracker(s){const div=document.createElement('div');div.className='wf4-tracker';const step={ASSIGNED:0,ACKNOWLEDGED:1,IN_PROGRESS:1,REOPENED:1,WAITING_CLIENT:1,SUBMITTED_REVIEW:2,COMPLETED:3}[s];if(step===undefined)return div;['Assigned','Progress','Review','Done'].forEach((name,i)=>{const x=document.createElement('span');x.className=i<step?'past':i===step?'current':'';x.textContent=name;div.append(x);});return div;}
+async function wf4OpenJob(c){if(state.mobile!==c.mobile)await selectClient(c.mobile);revealRight();window.WFRightDashboard?.show('client');wf3jFilter='ALL';wf3jExpandedJob=c.id;renderClientCases();$('clientCases').querySelector('[aria-expanded="true"]')?.scrollIntoView({block:'nearest'});}
+function renderCases(){const tbody=$('caseRows');tbody.replaceChildren();const q=normalized($('caseSearch').value),staff=$('caseStaffFilter').value,onlySelected=$('caseScope').value==='selected';const svc=$('wf4Service');setOptions(svc,[...new Set(state.data.cases.map(c=>c.service).filter(Boolean))].sort(),'All services');const stage=$('wf4CaseStage').value;const base=state.data.cases.filter(c=>(!staff||c.assigned_to===staff)&&(!onlySelected||c.mobile===state.mobile)&&(!svc.value||c.service===svc.value)&&[c.id,c.title,c.service,c.reference_no,c.client_name,c.mobile,c.assigned_to].some(x=>normalized(x).includes(q)));const cases=base.filter(c=>wf4Match(c,stage));const counters=$('wf4CaseCounts');counters.replaceChildren();for(const [k,l] of [['ALL','Total'],['ASSIGNED','Assigned'],['IN_PROGRESS','In Progress'],['WAITING_CLIENT','Waiting'],['SUBMITTED_REVIEW','Review'],['OVERDUE','Overdue'],['COMPLETED','Job Done']]){const x=wf3jButton(counters,l+' ('+base.filter(c=>wf4Match(c,k)).length+')',()=>{$('wf4CaseStage').value=k;renderCases();},'wf3j-filter'+(stage===k?' chosen':''));x.setAttribute('aria-pressed',String(stage===k));}
+ if(!cases.length)return blankRow(tbody,'No matching jobs.',6);
+ cases.forEach(c=>{const tr=tbody.insertRow();td(tr,clientName(c.mobile)+'\n'+c.title+' · '+c.service).style.whiteSpace='pre-line';td(tr,jobLabel(jobStage(c))+(wf4Late(c)?' · Overdue':''));td(tr,c.assigned_to||'—');const due=td(tr,wf4Due(c)||'—');if(wf4Late(c))due.className='wf4-overdue';td(tr,fmtDate(c.followup_date)||'—');action(tr,'Open',()=>wf4OpenJob(c));});
 }
-function renderFollowups(){const tbody=$('followupRows');tbody.replaceChildren();const scope=$('dueScope').value,staff=$('dueStaffFilter').value,today=state.data.today||new Date().toISOString().slice(0,10);const rows=getFollowups().filter(x=>(!staff||x.assigned_to===staff)&&(scope==='all'||(scope==='today'&&x.date===today)||(scope==='overdue'&&x.date&&x.date<today)||(scope==='upcoming'&&x.date>today)));
+
+function renderFollowups(){if(window.WF4D){window.WF4D.paintFollow();void window.WF4D.loadFollow();return;}const tbody=$('followupRows');tbody.replaceChildren();const scope=$('dueScope').value,staff=$('dueStaffFilter').value,today=state.data.today||new Date().toISOString().slice(0,10);const rows=getFollowups().filter(x=>(!staff||x.assigned_to===staff)&&(scope==='all'||(scope==='today'&&x.date===today)||(scope==='overdue'&&x.date&&x.date<today)||(scope==='upcoming'&&x.date>today)));
  if(!rows.length)return blankRow(tbody,'No matching follow-ups.',5);
  rows.forEach(x=>{const tr=tbody.insertRow();td(tr,x.date||'No date');td(tr,clientName(x.mobile)+'\n'+x.caseTitle).style.whiteSpace='pre-line';td(tr,x.text);td(tr,x.assigned_to||'Unassigned');if(x.type==='task'){const cell=tr.insertCell(),b=document.createElement('button');b.type='button';b.className='secondary';b.textContent=x.stage.replaceAll('_',' ');b.onclick=()=>openTaskEditor(x.id);cell.append(b);}else action(tr,'Case: '+x.stage.replaceAll('_',' '),()=>openCaseEditor(x.id));});
 }
@@ -119,12 +125,12 @@ function renderClientCases(){
  if(!state.mobile){dest.textContent='Select a client to see their jobs.';dest.className='muted';return;}
  dest.className='';
  const filterBar=document.createElement('div');filterBar.className='wf3j-filters';filterBar.setAttribute('role','group');filterBar.setAttribute('aria-label','Filter client jobs');
- for(const [key,label,count] of [['ACTIVE','Active',active],['ALL','All',rows.length],['COMPLETED','Completed',rows.length-active]]){
+ for(const [key,label,count] of [['ALL','All',rows.length],['ACTIVE','Active',active],['SUBMITTED_REVIEW','Review',rows.filter(c=>wf4Match(c,'SUBMITTED_REVIEW')).length],['OVERDUE','Overdue',rows.filter(wf4Late).length],['COMPLETED','Done',rows.filter(c=>jobStage(c)==='COMPLETED').length]]){
   const button=wf3jButton(filterBar,label+' ('+count+')',()=>{wf3jFilter=key;renderClientCases();},wf3jFilter===key?'wf3j-filter chosen':'wf3j-filter');
   button.setAttribute('aria-pressed',String(wf3jFilter===key));
  }
  dest.append(filterBar);
- const visible=rows.filter(c=>wf3jFilter==='ALL'||(wf3jFilter==='ACTIVE'?openCase(c):!openCase(c)));
+ const visible=rows.filter(c=>wf4Match(c,wf3jFilter));
  if(!visible.length){const empty=document.createElement('p');empty.className='muted';empty.textContent=rows.length?'No jobs under this filter.':'No jobs yet. Create your first job.';dest.append(empty);return;}
  for(const c of visible){
   const tasks=wf3jRelatedTasks(c.id);
@@ -137,12 +143,12 @@ function renderClientCases(){
   const labels=document.createElement('span');labels.className='wf3j-status-row';
   const stage=document.createElement('span');stage.className='wf-job-status'+(!openCase(c)?' completed':'');stage.textContent=jobLabel(jobStage(c));labels.append(stage);
   const assignment=document.createElement('span');assignment.className='wf3j-assignment'+(!currentTask?' missing':'');assignment.textContent=currentTask?'Employee: '+currentTask.current_status.replaceAll('_',' '):'Employee assignment missing';if(!Number(c.workflow_linked)&&!currentTask)labels.append(assignment);
-  top.append(labels);
+  if(wf4Late(c)){const late=document.createElement('span');late.className='wf4-overdue';late.textContent='Overdue';labels.append(late);}top.append(labels);top.append(wf4Tracker(jobStage(c)));
   const arrow=document.createElement('span');arrow.className='wf3j-expand-icon';arrow.textContent=expanded?'▴':'▾';top.append(arrow);
   top.onclick=()=>{wf3jExpandedJob=expanded?null:c.id;renderClientCases();};box.append(top);
   if(expanded){
    const detail=document.createElement('div');detail.className='wf3j-details';
-   const follow=document.createElement('div');follow.className='tiny';follow.textContent='Next follow-up: '+(fmtDate(c.followup_date)||'Not set');detail.append(follow);
+   const follow=document.createElement('div');follow.className='tiny';follow.textContent='Next follow-up: '+(fmtDate(c.followup_date)||'Not set');detail.append(follow);const due=document.createElement('div');due.className='tiny';due.textContent='Next open task due: '+(wf4Due(c)||'Not set');detail.append(due);
    if(c.next_action){const next=document.createElement('div');next.className='tiny';next.textContent='Next action: '+c.next_action;detail.append(next);}
    if(c.reference_no){const ref=document.createElement('div');ref.className='tiny';ref.textContent='Reference: '+c.reference_no;detail.append(ref);}
    if(currentTask){const assigned=document.createElement('div');assigned.className='tiny';assigned.textContent='Employee login: '+(currentTask.assignee_name||currentTask.assignee_username||'Unassigned')+' · '+(tasks.length>1?tasks.length+' linked work records':'1 linked work record');detail.append(assigned);}
@@ -151,10 +157,11 @@ function renderClientCases(){
    if(window.WFPhase3?.isAdmin?.()){
     wf3jButton(actions,'Edit Job',()=>openCaseEditor(c.id));
     // Billing is managed in the central Billing & Collections tab.
-    wf3jButton(actions,'Reassign',()=>wf3jOpenTask(c.id));
-    wf3jButton(actions,'Follow-up',()=>{openCaseEditor(c.id);$('caseDate').focus();});
+    wf3jButton(actions,'Follow-up',()=>window.WF4D?.record(c));
    }
-   if(currentTask)wf3jButton(actions,'View Employee Work',()=>wf3jOpenTask(c.id));
+   if(currentTask){for(const t of tasks){const work=window.WFPhase3?.taskCard(t,{compact:true,single:tasks.length===1});if(work)detail.append(work);}}
+   if(!window.WFPhase3?.isAdmin?.()&&currentTask&&openCase(c))wf3jButton(actions,'Follow-up',()=>window.WF4D?.record(c));
+   wf3jButton(actions,'Follow-up History',()=>window.WF4D?.history(c.id),'ghost');
    wf3jButton(actions,'History',()=>wf3jHistory(c.id),'ghost');
    detail.append(actions);box.append(detail);
   }
@@ -202,6 +209,7 @@ function renderMessages(rows){
  for(const m of rows){
   const bubble=document.createElement('div');bubble.className='bubble '+(m.direction==='outbound'?'outbound':'inbound');
   bubble.textContent=m.body_text||'('+m.message_type+' message)';
+  window.WF4D?.attachment(bubble,m);
   const small=document.createElement('small');small.textContent=displayTime(m.created_at)+' · '+(m.delivery_status||'');bubble.append(small);
   if(m.direction==='inbound'){
    bubble.dataset.wfMessageId=String(m.id);
@@ -225,7 +233,7 @@ function renderMessages(rows){
  document.dispatchEvent(new CustomEvent('wf3f:thread',{detail:{mobile:state.mobile,rows}}));
 }
 function renderNotes(rows){const dest=$('notes');dest.replaceChildren();if(!rows?.length){dest.textContent='No internal notes.';dest.className='muted';return;}for(const n of rows){const el=document.createElement('div');el.className='note';el.textContent=n.note_text;const small=document.createElement('small');small.textContent=(n.author||'Staff')+' · '+displayTime(n.created_at);el.append(small);dest.append(el);}}
-async function loadThread(){if(!state.mobile||state.sending)return;const mobile=state.mobile;try{const [data,closeInfo]=await Promise.all([api('thread/'+encodeURIComponent(mobile)),api('response-monitor/message-status/'+encodeURIComponent(mobile)).catch(()=>({ok:false}))]);if(mobile!==state.mobile)return;state.closedThroughId=Number(closeInfo.resolvedThroughId||0);state.closedMobile=mobile;const signature=data.rows.map(m=>m.id+':'+m.delivery_status).join('|')+'|closed:'+state.closedThroughId;if(signature!==state.messagesSignature){renderMessages(data.rows);state.messagesSignature=signature;}renderNotes(data.notes);state.canReply=!!data.canReply;$('reply').disabled=!data.canReply;$('send').disabled=!data.canReply;updateSavedMessageAvailability();alertMsg(data.canReply?'':'Free-form WhatsApp replies require a recent inbound message within the customer-service window.');}catch(e){alertMsg(e.message);}}
+async function loadThread(){if(!state.mobile||state.sending)return;const mobile=state.mobile;try{const [data,closeInfo]=await Promise.all([api('thread/'+encodeURIComponent(mobile)),api('response-monitor/message-status/'+encodeURIComponent(mobile)).catch(()=>({ok:false}))]);if(mobile!==state.mobile)return;state.closedThroughId=Number(closeInfo.resolvedThroughId||0);state.closedMobile=mobile;const signature=data.rows.map(m=>m.id+':'+m.delivery_status+':'+(m.media_status||'')).join('|')+'|closed:'+state.closedThroughId;if(signature!==state.messagesSignature){renderMessages(data.rows);state.messagesSignature=signature;}renderNotes(data.notes);state.canReply=!!data.canReply;$('reply').disabled=!data.canReply;$('send').disabled=!data.canReply;updateSavedMessageAvailability();alertMsg(data.canReply?'':'Free-form WhatsApp replies require a recent inbound message within the customer-service window.');}catch(e){alertMsg(e.message);}}
 async function loadList(){if(!state.logged)return;try{const result=await api('conversations');state.conversations=result.rows||[];drawList();}catch(e){status(e.message,true);}}
 async function refreshData(){if(!state.logged||state.loading)return;state.loading=true;try{const result=await api('dashboard-data');state.data=result;refreshFilters();renderKPIs();renderCases();renderFollowups();fillDocumentCases();renderDocuments();if(!document.activeElement?.closest('#right form')&&!document.activeElement?.closest('#clientForm')&&!state.newClient)renderWorkspace();else{renderClientCases();renderClientTasks();}drawList();status('Updated');}catch(e){status(e.message,true);}finally{state.loading=false;}}
 async function refreshAll(){await Promise.all([loadList(),refreshData()]);if(state.mobile)await loadThread();}
@@ -249,7 +257,7 @@ function fillDocumentCases(){
  state.data.cases.filter(c=>c.mobile===state.mobile).forEach(c=>option(el,c.id,c.title+' · '+c.service));
  if([...el.options].some(x=>x.value===old))el.value=old;
 }
-function clearDocument(){$('documentForm').reset();$('documentId').value='';fillDocumentCases();$('documentStatus').value='REQUESTED';$('documentActor').value='Staff';}
+function clearDocument(){$('documentForm').reset();$('documentId').value='';fillDocumentCases();$('documentStatus').value='REQUESTED';$('documentActor').value=window.WFPhase3?.getDashboardData()?.user?.displayName||'Staff';}
 function renderDocuments(){
  const rows=state.documents.filter(d=>!$('docFilter').value||d.status===$('docFilter').value);
  const tbody=$('documentRows'),listing=$('clientDocuments');tbody.replaceChildren();listing.replaceChildren();
@@ -262,7 +270,7 @@ function renderDocuments(){
 }
 async function loadDocuments(){
  const mobile=state.mobile;if(!validMobile(mobile)){state.documents=[];renderDocuments();return;}
- try{const r=await api('documents?mobile='+encodeURIComponent(mobile));if(mobile!==state.mobile)return;state.documents=r.rows||[];renderDocuments();}
+ try{const r=await api('documents?mobile='+encodeURIComponent(mobile));if(mobile!==state.mobile)return;state.documents=r.rows||[];renderDocuments();if(state.view==='documents')void window.WF4D?.loadFiles();}
  catch(e){if(mobile===state.mobile){state.documents=[];renderDocuments();status(e.message,true);}}
 }
 function openDocument(id){const d=state.documents.find(x=>Number(x.id)===Number(id));if(!d)return;clearDocument();$('documentId').value=d.id;$('documentCase').value=d.case_id;$('documentTitle').value=d.title;$('documentStaff').value=d.assigned_to||'';$('documentStatus').value=d.status;$('documentDue').value=fmtDate(d.due_date);$('documentReceived').value=fmtDate(d.received_date);$('documentRemarks').value=d.remarks||'';switchView('documents');$('documentBox').scrollIntoView({behavior:'smooth',block:'nearest'});}
@@ -354,7 +362,7 @@ async function sendSavedText(e){
  try{
   const result=await api('reply','POST',{mobile,text:body});
   $('templateStatus').textContent='Text accepted by Meta ('+(result.messageId||'request accepted')+'). Delivery is not guaranteed.';
-  status('Text message submitted to Meta');$('confirmTemplate').checked=false;state.messagesSignature='';
+  status(result.notice||'Text message submitted to Meta',!!result.notice);$('confirmTemplate').checked=false;state.messagesSignature='';
  }catch(err){$('templateStatus').textContent=err.message;status(err.message,true);}
  finally{state.sending=false;await loadThread();await loadList();updateSavedMessageAvailability();}
 }
@@ -366,7 +374,7 @@ $('togglePanel').onclick=()=>{const el=$('right'),collapsed=el.classList.toggle(
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>switchView(b.dataset.view));
 document.querySelectorAll('[data-list]').forEach(b=>b.onclick=()=>{state.listFilter=b.dataset.list;document.querySelectorAll('[data-list]').forEach(x=>x.classList.toggle('selected',x===b));drawList();});
 document.querySelectorAll('[data-kpi]').forEach(b=>b.onclick=()=>selectKpi(b.dataset.kpi));
-$('search').oninput=drawList;$('caseSearch').oninput=renderCases;$('caseStaffFilter').onchange=renderCases;$('caseScope').onchange=renderCases;$('dueScope').onchange=renderFollowups;$('dueStaffFilter').onchange=renderFollowups;
+$('search').oninput=drawList;$('caseSearch').oninput=renderCases;$('caseStaffFilter').onchange=renderCases;$('caseScope').onchange=renderCases;$('wf4CaseStage').onchange=renderCases;$('wf4Service').onchange=renderCases;$('dueScope').onchange=renderFollowups;$('dueStaffFilter').onchange=renderFollowups;
 $('newClient').onclick=()=>window.WFMaster?.start('WALK_IN');
 $('newCase').onclick=()=>{if(!state.mobile)return status('Select a client on the left or create one first.',true);clearCase();goRight('caseBox');$('caseTitle').focus();};
 $('addCaseForClient').onclick=$('newCase').onclick;
@@ -374,13 +382,13 @@ $('newTask').onclick=()=>{if(!state.mobile)return status('Select a client first.
 $('addTaskForClient').onclick=$('newTask').onclick;
 $('wfQuickNewJob').onclick=()=>{if(!state.mobile)return status('Select a client first.',true);$('addCaseForClient').click();};
 $('wfQuickAssign').onclick=()=>{const c=caseById(wf3jExpandedJob);if(!c||c.mobile!==state.mobile)return status('Expand the existing job you want to reassign.',true);wf3jOpenTask(c.id);};
-$('wfQuickFollowup').onclick=()=>{const c=caseById(wf3jExpandedJob);if(!c||c.mobile!==state.mobile)return status('Expand a job to set its follow-up.',true);openCaseEditor(c.id);$('caseDate').focus();};
+$('wfQuickFollowup').onclick=()=>{const c=caseById(wf3jExpandedJob);if(!c||c.mobile!==state.mobile)return status('Expand a job to set its follow-up.',true);window.WF4D?.record(c);};
 $('wfQuickMyTasks').onclick=()=>window.WFRightDashboard?.show('dashboard');
 
 $('clearCase').onclick=clearCase;$('clearTask').onclick=clearTask;
 $('docFilter').onchange=renderDocuments;$('newDocument').onclick=()=>{if(!state.mobile)return status('Select a client first.',true);clearDocument();switchView('documents');$('documentBox').scrollIntoView({behavior:'smooth',block:'nearest'});$('documentTitle').focus();};$('clearDocument').onclick=clearDocument;$('documentForm').onsubmit=saveDocument;$('refreshTemplates').onclick=loadTemplates;$('templateSelect').onchange=renderTemplatePreview;$('saveConsent').onclick=saveTemplateConsent;$('templateForm').onsubmit=sendSavedText;
 $('clientForm').onsubmit=e=>{e.preventDefault();if(!window.WFMaster)return status('Client Master is unavailable. Check updated files.',true);const existing=window.WFMaster.getContact(state.mobile);if(existing)return window.WFMaster.openMasterOnly(existing);window.WFMaster.start(state.mobile?'WHATSAPP':'WALK_IN',state.mobile);$('wfmName').value=$('clientName').value.trim();$('wfmType').value=$('wf3fClientType').value;$('wfmEmail').value=$('wf3fEmail').value;$('wfmAddress').value=$('wf3fAddress').value;};$('caseForm').onsubmit=saveCase;$('taskForm').onsubmit=saveTask;$('noteForm').onsubmit=saveNote;
-$('replyForm').onsubmit=async e=>{e.preventDefault();const text=$('reply').value.trim();if(!state.mobile||!text)return;state.sending=true;$('send').disabled=true;try{await api('reply','POST',{mobile:state.mobile,text});$('reply').value='';state.messagesSignature='';status('Message submitted to Meta');}catch(err){alertMsg(err.message);}finally{state.sending=false;await loadThread();await loadList();}};
+$('replyForm').onsubmit=async e=>{e.preventDefault();const text=$('reply').value.trim();if(!state.mobile||!text)return;state.sending=true;$('send').disabled=true;try{const result=await api('reply','POST',{mobile:state.mobile,text});$('reply').value='';state.messagesSignature='';status(result.notice||'Message submitted to Meta',!!result.notice);}catch(err){alertMsg(err.message);}finally{state.sending=false;await loadThread();await loadList();}};
 (async()=>{try{const s=await api('session');for(const id of ['service','caseService'])s.services.forEach(x=>option($(id),x,x));for(const id of ['stage','caseStage'])s.stages.forEach(x=>option($(id),x,x.replaceAll('_',' ')));if(s.authenticated){showApp();await refreshAll();await loadTemplates();await window.WFPhase3?.boot();}else showLogin();}catch(e){showLogin();}})();
 setInterval(async()=>{if(!state.logged||document.hidden)return;await loadList();if(state.mobile&&state.conversations.some(c=>c.mobile===state.mobile))await loadThread();},5000);
 setInterval(async()=>{if(!state.logged||document.hidden)return;await refreshData();},60000);
@@ -460,7 +468,7 @@ async function refreshResponseMonitor(showNew=true){
    responseState.settingsInitialized=true;
   }
   paintResponseList();drawList();
-  if(showNew&&!document.hidden){
+  if(showNew&&!document.hidden&&!document.getElementById('wf4cDialog')){
    const pendingEvents=responseState.alerts.filter(a=>!a.is_snoozed);
    // Prevent a 60-second poll from redisplaying the same persisted event in one tab.
    const unseen=pendingEvents.find(e=>{
@@ -528,4 +536,4 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&state.log
 $('enableResponseDesktop').onclick=async()=>{if(!('Notification' in window))return status('Desktop notifications are not supported in this browser.',true);try{const p=await Notification.requestPermission();status(p==='granted'?'Desktop notifications enabled':'Desktop notifications not enabled');}catch(e){status(e.message,true);}};
 
 // Repaint employee status chips after background task/notification updates.
-document.addEventListener('wf3:updated',()=>{if(state.logged&&!state.newClient)renderClientCases();});
+document.addEventListener('wf3:updated',()=>{if(state.logged&&!state.newClient){renderClientCases();renderCases();}});

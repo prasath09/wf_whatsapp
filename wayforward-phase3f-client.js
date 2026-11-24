@@ -23,7 +23,7 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
    text(summary,'strong',data.client?.client_name||'Unnamed client');
    text(summary,'div','+'+data.client.mobile+' · '+(data.details.client_type||'INDIVIDUAL'),'tiny');
    for(const metric of [services.length+' service(s)',cases.length+' job(s)',active+' active job(s)',tasks.length+' task(s)'])text(summary,'span',metric,'wf3f-metric');
-   if(services.length)text(summary,'div','Services: '+services.join(' · '),'tiny');
+   if(services.length)text(summary,'div','Services: '+services.join(' · '),'tiny');const priorOpen=wf.summaryOpen||false;const more=text(summary,'details','','wf4-profile-details');more.open=priorOpen;more.ontoggle=()=>{wf.summaryOpen=more.open;};text(more,'summary','Client information');const master=window.WFMaster?.getContact?.(data.client.mobile);if(master){text(more,'p','Client code: '+(master.client_code||'Not recorded'),'tiny');if(isAdmin())text(more,'p','PAN: '+(master.pan||'Not recorded'),'tiny');}text(more,'p','Email: '+(master?.email||data.details.email||'Not recorded'),'tiny');text(more,'p','Address: '+(data.details.address||'Not recorded'),'tiny');text(more,'p','Client since: '+(data.client.created_at?fmt(data.client.created_at):'Not recorded'),'tiny');text(more,'p','Completed jobs: '+cases.filter(c=>c.stage==='COMPLETED').length,'tiny');if(isAdmin()){const balance=window.WF4BillingSummary?.(data.client.mobile);text(more,'p','Outstanding fees: '+(balance??'Not available'),'tiny');}
    $('clientName').value=data.client?.client_name||'';$('mobile').value=data.client.mobile;
    $('wf3fClientType').value=data.details.client_type||'INDIVIDUAL';
    $('wf3fEmail').value=data.details.email||'';$('wf3fAddress').value=data.details.address||'';
@@ -35,7 +35,7 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
      if(c.next_action)text(card,'p','Next action: '+c.next_action);
      const childTasks=tasks.filter(t=>Number(t.case_id)===Number(c.id));
      text(card,'small',childTasks.length+' task(s) · '+childTasks.filter(t=>(t.current_status||t.status)==='COMPLETED').length+' completed');
-     button(card,isAdmin()?'Edit Job':'View Job',()=>{if(typeof openCaseEditor==='function' && isAdmin())openCaseEditor(c.id);else{switchView('cases');$('caseScope').value='selected';renderCases();}});
+     button(card,'Open Job',()=>{const job=caseById(c.id);if(job)wf4OpenJob(job);else{switchView('cases');$('caseScope').value='selected';renderCases();}});
    }
    const timeline=[];
    jobHistory.forEach(e=>timeline.push({date:e.created_at,what:'Job '+e.action.toLowerCase()+': '+e.title+(e.note?' — '+e.note:''),who:e.actor_name||'Admin',status:e.stage}));
@@ -74,16 +74,18 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
    },{root:container,threshold:[.5]});
    container.querySelectorAll('[data-wf-message-id]').forEach(node=>wf.observer.observe(node));
  }
- function setClient(mobile){const changed=wf.mobile!==mobile;wf.mobile=mobile;wf.active=$('chatView').classList.contains('active');if(changed){wf.sent.clear();wf.readQueue.clear();wf.readers.clear();wf.observer?.disconnect();wf.loadToken++;}
+ function setClient(mobile){const changed=wf.mobile!==mobile;wf.mobile=mobile;wf.active=$('chatView').classList.contains('active');if(changed){wf.summaryOpen=false;wf.sent.clear();wf.readQueue.clear();wf.readers.clear();wf.observer?.disconnect();wf.loadToken++;}
    getReaders(mobile);loadProfile(mobile);observeVisible();}
  // Relocate the existing client master form. Keep the legacy inputs hidden for the Phase 2 JS compatibility.
- $('wf3fClientFormHome').append($('clientBox'));
+ $('wf3fClientFormHome').append($('clientBox'));const saved=document.createElement('details');saved.className='wf4-saved';const savedTitle=document.createElement('summary');savedTitle.textContent='Saved Text Messages';saved.append(savedTitle,$('templateBox'));$('replyForm').before(saved);document.addEventListener('wf3:updated',()=>{if(wf.mobile&&$('profileView').classList.contains('active')&&!document.activeElement?.closest('#clientForm'))loadProfile(wf.mobile);});
  $('wf3fNewJob').onclick=()=>{if(!wf.mobile){alert('Select or save a client first.');return;}if(!isAdmin())return;
    if(typeof clearCase==='function')clearCase();if(typeof goRight==='function')goRight('caseBox');$('caseTitle').focus();};
  document.addEventListener('wf3f:client',e=>setClient(e.detail.mobile||''));
  document.addEventListener('wf3f:view',e=>{wf.active=e.detail.name==='chat';if(e.detail.name==='profile')loadProfile(wf.mobile);observeVisible();});
  document.addEventListener('wf3f:thread',e=>{if(wf.mobile!==e.detail.mobile){wf.mobile=e.detail.mobile;wf.sent.clear();wf.readers.clear();}
    paintReaders();observeVisible();getReaders(e.detail.mobile);});
+ document.addEventListener('wf3:reset',()=>{wf.sent.clear();wf.readQueue.clear();wf.readers.clear();wf.observer?.disconnect();wf.loadToken++;});
+ document.addEventListener('wf3:role',()=>{wf.sent.clear();wf.readQueue.clear();observeVisible();});
  document.addEventListener('visibilitychange',()=>{if(document.hidden)wf.observer?.disconnect();else observeVisible();});
  // When the app starts with an existing session, other scripts dispatch events on selection.
 })();
