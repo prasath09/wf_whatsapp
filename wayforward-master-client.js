@@ -18,7 +18,7 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
  function choice(label,fn,secondary=false){const b=document.createElement('button');b.type='button';b.className=secondary?'secondary':'wfm-match';b.textContent=label;b.onclick=fn;return b;}
  function start(source='WALK_IN',mobile=''){
   if(!admin())return status('Only Admin can create client masters.',true);
-  el('wfmJobsBox').hidden=true;el('wfSharedMaster').hidden=true;masterState.selected=null;masterState.mode='new';masterState.pendingMobile=digits(mobile);
+  el('wfSharedMaster').hidden=true;masterState.selected=null;masterState.mode='new';masterState.pendingMobile=digits(mobile);
   el('wfmForm').reset();el('wfmId').value='';el('wfmName').value='';el('wfmSource').value=source;el('wfmMobile').value=masterState.pendingMobile;
   el('wfmFormHeading').textContent=source==='WHATSAPP'?'Register WhatsApp enquiry':'New Audit Office Client';
   el('wfmFormSource').textContent=source==='WHATSAPP'?'From selected WhatsApp':'Manual registration';
@@ -31,25 +31,8 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
   if(r.client_type&&!Array.from(el('wfmType').options).some(o=>o.value===r.client_type))el('wfmType').add(new Option(r.client_type,r.client_type));for(const [k,v] of Object.entries(f))if(el(k))el(k).value=v??'';
   el('wfmFormHeading').textContent='Client Master · '+(r.client_code||'#'+r.id);el('wfmFormSource').textContent='Existing client';
   el('wfmLinkBox').hidden=true;message('Linked WhatsApp: '+(r.linked_mobiles||'None yet'));
-  el('wfmJobsBox').hidden=false;void loadJobs(r);const shared=el('wfSharedMaster');shared.hidden=!admin();shared.onclick=()=>window.open('https://prasath09.github.io/wayforward-main-crm/?client='+encodeURIComponent(r.id),'_blank','noopener');
+  const shared=el('wfSharedMaster');shared.hidden=!admin();shared.onclick=()=>window.open('https://prasath09.github.io/wayforward-main-crm/?client='+encodeURIComponent(r.id),'_blank','noopener');
   switchView('master');
- }
- async function loadJobs(r){
-  const host=el('wfmJobsList'),audit=el('wfmAudit');host.replaceChildren();audit.replaceChildren();
-  host.textContent='Loading linked jobs...';
-  try{const data=await request('jobs/'+encodeURIComponent(r.id));if(Number(masterState.selected?.id)!==Number(r.id))return;
-   host.replaceChildren();
-   if(!data.cases?.length)host.textContent='No jobs recorded yet. Add a mobile to the client master, then create a job.';
-   for(const job of data.cases||[]){
-    const box=document.createElement('div');box.className='wfm-box';
-    const title=document.createElement('strong');title.textContent=job.title+' · '+job.service;
-    const meta=document.createElement('div');meta.className='tiny';meta.textContent=job.stage.replaceAll('_',' ')+' · '+(job.assigned_to||'Unassigned')+' · '+job.open_tasks+' open task(s) · '+job.mobile;
-    box.append(title,meta,choice('Open job',async()=>{await selectClient(job.mobile);openCaseEditor(job.id);},true));host.append(box);
-   }
-   if(data.history?.length){const heading=document.createElement('h4');heading.textContent='Recent job history';audit.append(heading);
-    for(const h of data.history.slice(0,15)){const line=document.createElement('div');line.className='tiny';line.style.padding='3px 0';line.textContent=h.action+' · '+h.title+' · '+h.stage+' · '+h.actor_name+' · '+String(h.created_at).slice(0,16);audit.append(line);}
-   }
-  }catch(e){host.textContent=e.message;}
  }
  function listDirectory(){
   const host=el('wfmDirectory');host.replaceChildren();const q=norm(el('wfmDirectorySearch').value);
@@ -140,11 +123,10 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
    }
   }finally{btn.disabled=false;}
  }
- function openMasterOnly(r){if(!r.primary_mobile&&!r.linked_mobiles){state.mobile='';state.messagesSignature='';renderWorkspace();drawList();}if(admin())fill(r);else{switchView('master');el('wfmDirectorySearch').value=r.client_name;listDirectory();}}
+ function openMasterOnly(r){if(!r.primary_mobile&&!r.linked_mobiles){state.mobile='';state.messagesSignature='';el('note').value='';el('notes').textContent='Select a client.';renderWorkspace();document.dispatchEvent(new CustomEvent('wf3f:client',{detail:{mobile:''}}));drawList();}if(admin())fill(r);else{switchView('master');el('wfmDirectorySearch').value=r.client_name;listDirectory();}}
  el('wfmNewLeft').onclick=()=>start('WALK_IN');el('wfmNewProfile').onclick=()=>start('WALK_IN');el('wfmNewInProfile').onclick=()=>start('WALK_IN');
  el('wfmCreateFromChat').onclick=()=>start('WHATSAPP',state.mobile);el('wfmLinkFromChat').onclick=()=>openLink(state.mobile);
  el('wfmClear').onclick=()=>start('WALK_IN');el('wfmForm').onsubmit=save;
- el('wfmAddJob').hidden=true;el('wfmAddJob').onclick=null;
  el('wfmRefresh').onclick=fetchRecords;el('wfmLookup').oninput=searchResults;el('wfmDirectorySearch').oninput=listDirectory;
  document.querySelectorAll('[data-wfm-scope]').forEach(b=>b.onclick=()=>{state.masterScope=b.dataset.wfmScope;document.querySelectorAll('[data-wfm-scope]').forEach(x=>x.classList.toggle('selected',x===b));drawList();});
  document.addEventListener('wf3f:client',e=>{void updateChatActions(e.detail?.mobile||'');});

@@ -16,14 +16,11 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
  function activeMobile(){return wf.mobile;}
  function clearForm(){ $('wf3fClientType').value='INDIVIDUAL';$('wf3fEmail').value='';$('wf3fAddress').value=''; }
  function drawProfile(data){
-   const summary=$('wf3fSummary'),jobs=$('wf3fJobs'),history=$('wf3fHistory');summary.replaceChildren();jobs.replaceChildren();history.replaceChildren();
+   const summary=$('wf3fSummary'),history=$('wf3fHistory');summary.replaceChildren();history.replaceChildren();
    const cases=data.cases||[],tasks=data.tasks||[],events=data.events||[],jobHistory=data.jobHistory||[];
-   const services=[...new Set(cases.map(c=>c.service).filter(Boolean))];
-   const active=cases.filter(c=>!['COMPLETED','REJECTED','CANCELLED'].includes(c.stage)).length;
    text(summary,'strong',data.client?.client_name||'Unnamed client');
    text(summary,'div','+'+data.client.mobile+' · '+(data.details.client_type||'INDIVIDUAL'),'tiny');
-   for(const metric of [services.length+' service(s)',cases.length+' job(s)',active+' active job(s)',tasks.length+' task(s)'])text(summary,'span',metric,'wf3f-metric');
-   if(services.length)text(summary,'div','Services: '+services.join(' · '),'tiny');const priorOpen=wf.summaryOpen||false;const more=text(summary,'details','','wf4-profile-details');more.open=priorOpen;more.ontoggle=()=>{wf.summaryOpen=more.open;};text(more,'summary','Client information');const master=data.master;if(master){text(more,'p','Client code: '+(master.client_code||'Not recorded'),'tiny');if(isAdmin())text(more,'p','PAN: '+(master.pan||'Not recorded'),'tiny');}text(more,'p','Email: '+(data.details.email||'Not recorded'),'tiny');text(more,'p','Address: '+(data.details.address||'Not recorded'),'tiny');text(more,'p','Client since: '+(data.client.created_at?fmt(data.client.created_at):'Not recorded'),'tiny');text(more,'p','Completed jobs: '+cases.filter(c=>c.stage==='COMPLETED').length,'tiny');if(isAdmin()){const balance=window.WF4BillingSummary?.(data.client.mobile);text(more,'p','Outstanding fees: '+(balance??'Not available'),'tiny');}
+   const priorOpen=wf.summaryOpen||false;const more=text(summary,'details','','wf4-profile-details');more.open=priorOpen;more.ontoggle=()=>{wf.summaryOpen=more.open;};text(more,'summary','Client information');const master=data.master;if(master){text(more,'p','Client code: '+(master.client_code||'Not recorded'),'tiny');if(isAdmin())text(more,'p','PAN: '+(master.pan||'Not recorded'),'tiny');}text(more,'p','Email: '+(data.details.email||'Not recorded'),'tiny');text(more,'p','Address: '+(data.details.address||'Not recorded'),'tiny');text(more,'p','Client since: '+(data.client.created_at?fmt(data.client.created_at):'Not recorded'),'tiny');if(isAdmin()){const balance=window.WF4BillingSummary?.(data.client.mobile);text(more,'p','Outstanding fees: '+(balance??'Not available'),'tiny');}
    $('clientName').value=data.client?.client_name||'';$('mobile').value=data.client.mobile;
    $('wf3fClientType').value=data.details.client_type||'INDIVIDUAL';
    $('wf3fEmail').value=data.details.email||'';$('wf3fAddress').value=data.details.address||'';
@@ -34,16 +31,6 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
    if(master){for(const [label,value] of [['Client code',master.client_code],['Client name',master.client_name],['Client type',data.details.client_type],['Primary mobile',master.primary_mobile],['Email',data.details.email],['Address',data.details.address],...(isAdmin()?[['PAN',master.pan],['GSTIN',master.gstin],['TAN',master.tan],['Remarks',master.remarks]]:[])]){const line=text(permanent,'p','');text(line,'strong',label+': ');text(line,'span',value||'Not recorded');}}
    else text(permanent,'p','No permanent Client Master linked. Use Client Master to register or link this enquiry.');
    $('saveClient').hidden=!master||!isAdmin();$('saveClient').textContent='Edit in Client Master';
-   if(!cases.length)text(jobs,'p','No jobs yet. Create a job to link employee tasks and documents.','muted');
-   for(const c of cases){
-     const card=text(jobs,'div','','wf3f-job');text(card,'strong',c.title);
-     text(card,'p',`${c.service} · ${(window.WFPhase3?.label(c.stage)||c.stage.replaceAll('_',' '))} · ${c.assigned_to||'Unassigned'} · ${c.followup_date?fmt(c.followup_date):'No follow-up date'}`);
-     if(c.reference_no)text(card,'p','Reference: '+c.reference_no);
-     if(c.next_action)text(card,'p','Next action: '+c.next_action);
-     const childTasks=tasks.filter(t=>Number(t.case_id)===Number(c.id));
-     text(card,'small',childTasks.length+' task(s) · '+childTasks.filter(t=>(t.current_status||t.status)==='COMPLETED').length+' completed');
-     button(card,'Open Job',()=>{const job=caseById(c.id);if(job)wf4OpenJob(job);else{switchView('cases');$('caseScope').value='selected';renderCases();}});
-   }
    const timeline=[];
    jobHistory.forEach(e=>timeline.push({date:e.created_at,what:'Job '+e.action.toLowerCase()+': '+e.title+(e.note?' — '+e.note:''),who:e.actor_name||'Admin',status:e.stage}));
    cases.forEach(c=>timeline.push({date:c.created_at,what:'Job created: '+c.title,who:c.assigned_to||'—',status:c.stage}));
@@ -55,11 +42,11 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
      const row=text(history,'div','','wf3f-event');text(row,'div',e.what);text(row,'small',fmt(e.date)+' · '+e.who+' · '+String(e.status||'').replaceAll('_',' '),'tiny');
    }
  }
- async function loadProfile(mobile){$('wfPermanentDetails').textContent='Loading permanent Client Master…';$('saveClient').hidden=true;$('wfSharedProfile').hidden=true;if(!mobile){$('wfPermanentDetails').textContent='Select a client.';wf.profile=null;$('clientForm').dataset.masterId='';$('wfSharedProfile').hidden=true;$('clientName').readOnly=false;$('wf3fEmail').readOnly=false;$('wf3fAddress').readOnly=false;$('wf3fClientType').disabled=false;clearForm();$('wf3fSummary').textContent='Create a client profile or select a customer.';$('wf3fJobs').textContent='';$('wf3fHistory').textContent='';return;}
+ async function loadProfile(mobile){$('wfPermanentDetails').textContent='Loading permanent Client Master…';$('wf3fHistory').textContent=mobile?'Loading selected client job activity…':'Select a client to view job activity.';$('saveClient').hidden=true;$('wfSharedProfile').hidden=true;if(!mobile){$('wfPermanentDetails').textContent='Select a client.';wf.profile=null;$('clientForm').dataset.masterId='';$('wfSharedProfile').hidden=true;$('clientName').readOnly=false;$('wf3fEmail').readOnly=false;$('wf3fAddress').readOnly=false;$('wf3fClientType').disabled=false;clearForm();$('wf3fSummary').textContent='Create a client profile or select a customer.';$('wf3fHistory').textContent='Select a client to view job activity.';return;}
    const token=++wf.loadToken;try{const data=await call('client-history/'+encodeURIComponent(mobile));if(token!==wf.loadToken||wf.mobile!==mobile)return;wf.profile=data;
      // Do not replace fields while an employee is actively typing.
      drawProfile(data);
-   }catch(e){if(token===wf.loadToken){$('wf3fSummary').textContent=e.message;$('wfPermanentDetails').textContent='Unable to load Client Master: '+e.message;}}
+   }catch(e){if(token===wf.loadToken){$('wf3fSummary').textContent=e.message;$('wfPermanentDetails').textContent='Unable to load Client Master: '+e.message;$('wf3fHistory').textContent='Unable to load job activity: '+e.message;}}
  }
  function paintReaders(){const nodes=document.querySelectorAll('#thread [data-wf-readers]');for(const node of nodes){const entries=wf.readers.get(node.dataset.wfReaders)||[];
    node.textContent=entries.length?'Read by: '+entries.map(r=>r.staff_name+' ('+fmt(r.first_viewed_at)+')').join(' · '):'Read by: —';
@@ -84,11 +71,11 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
  function setClient(mobile){const changed=wf.mobile!==mobile;wf.mobile=mobile;wf.active=$('chatView').classList.contains('active');if(changed){wf.summaryOpen=false;wf.sent.clear();wf.readQueue.clear();wf.readers.clear();wf.observer?.disconnect();wf.loadToken++;}
    getReaders(mobile);loadProfile(mobile);observeVisible();}
  // Relocate the existing client master form. Keep the legacy inputs hidden for the Phase 2 JS compatibility.
- $('wf3fClientFormHome').append($('clientBox'));const saved=document.createElement('details');saved.className='wf4-saved';const savedTitle=document.createElement('summary');savedTitle.textContent='Saved Text Messages';saved.append(savedTitle,$('templateBox'));$('replyForm').before(saved);document.addEventListener('wf3:updated',()=>{if(wf.mobile&&$('profileView').classList.contains('active')&&!document.activeElement?.closest('#clientForm'))loadProfile(wf.mobile);});
+ $('wf3fClientFormHome').append($('clientBox'));const saved=document.createElement('details');saved.className='wf4-saved';const savedTitle=document.createElement('summary');savedTitle.textContent='Saved Text Messages';saved.append(savedTitle,$('templateBox'));$('replyForm').before(saved);document.addEventListener('wf3:updated',()=>{if(wf.mobile&&($('profileView').classList.contains('active')||$('casesView').classList.contains('active'))&&!document.activeElement?.closest('#clientForm'))loadProfile(wf.mobile);});
  $('wf3fNewJob').onclick=()=>{if(!wf.mobile){alert('Select or save a client first.');return;}if(!isAdmin())return;
    if(typeof clearCase==='function')clearCase();if(typeof goRight==='function')goRight('caseBox');$('caseTitle').focus();};
  document.addEventListener('wf3f:client',e=>setClient(e.detail.mobile||''));
- document.addEventListener('wf3f:view',e=>{wf.active=e.detail.name==='chat';if(e.detail.name==='profile')loadProfile(wf.mobile);observeVisible();});
+ document.addEventListener('wf3f:view',e=>{wf.active=e.detail.name==='chat';if(['profile','cases'].includes(e.detail.name))loadProfile(wf.mobile);observeVisible();});
  document.addEventListener('wf3f:thread',e=>{if(wf.mobile!==e.detail.mobile){wf.mobile=e.detail.mobile;wf.sent.clear();wf.readers.clear();}
    paintReaders();observeVisible();getReaders(e.detail.mobile);});
  document.addEventListener('wf3:reset',()=>{wf.sent.clear();wf.readQueue.clear();wf.readers.clear();wf.observer?.disconnect();wf.loadToken++;});
