@@ -18,7 +18,7 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
  function choice(label,fn,secondary=false){const b=document.createElement('button');b.type='button';b.className=secondary?'secondary':'wfm-match';b.textContent=label;b.onclick=fn;return b;}
  function start(source='WALK_IN',mobile=''){
   if(!admin())return status('Only Admin can create client masters.',true);
-  el('wfmJobsBox').hidden=true;masterState.selected=null;masterState.mode='new';masterState.pendingMobile=digits(mobile);
+  el('wfmJobsBox').hidden=true;el('wfSharedMaster').hidden=true;masterState.selected=null;masterState.mode='new';masterState.pendingMobile=digits(mobile);
   el('wfmForm').reset();el('wfmId').value='';el('wfmName').value='';el('wfmSource').value=source;el('wfmMobile').value=masterState.pendingMobile;
   el('wfmFormHeading').textContent=source==='WHATSAPP'?'Register WhatsApp enquiry':'New Audit Office Client';
   el('wfmFormSource').textContent=source==='WHATSAPP'?'From selected WhatsApp':'Manual registration';
@@ -28,10 +28,10 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
   if(!r)return;
   masterState.selected=r;masterState.mode='edit';masterState.pendingMobile='';
   const f={wfmId:r.id,wfmName:r.client_name,wfmType:r.client_type,wfmMobile:r.primary_mobile,wfmEmail:r.email,wfmPan:r.pan,wfmGstin:r.gstin,wfmTan:r.tan,wfmSource:r.acquisition_source,wfmAddress:r.address,wfmRemarks:r.remarks};
-  for(const [k,v] of Object.entries(f))if(el(k))el(k).value=v??'';
+  if(r.client_type&&!Array.from(el('wfmType').options).some(o=>o.value===r.client_type))el('wfmType').add(new Option(r.client_type,r.client_type));for(const [k,v] of Object.entries(f))if(el(k))el(k).value=v??'';
   el('wfmFormHeading').textContent='Client Master · '+(r.client_code||'#'+r.id);el('wfmFormSource').textContent='Existing client';
   el('wfmLinkBox').hidden=true;message('Linked WhatsApp: '+(r.linked_mobiles||'None yet'));
-  el('wfmJobsBox').hidden=false;void loadJobs(r);
+  el('wfmJobsBox').hidden=false;void loadJobs(r);const shared=el('wfSharedMaster');shared.hidden=!admin();shared.onclick=()=>window.open('https://prasath09.github.io/wayforward-main-crm/?client='+encodeURIComponent(r.id),'_blank','noopener');
   switchView('master');
  }
  async function loadJobs(r){
@@ -117,7 +117,7 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
  }
  async function save(event){
   event.preventDefault();if(!admin())return message('Admin role required.',true);
-  const body={id:el('wfmId').value||undefined,name:el('wfmName').value.trim(),clientType:el('wfmType').value,
+  const body={core_version:masterState.selected?.core_version,id:el('wfmId').value||undefined,name:el('wfmName').value.trim(),clientType:el('wfmType').value,
    mobile:digits(el('wfmMobile').value),email:el('wfmEmail').value.trim(),pan:el('wfmPan').value.trim(),
    gstin:el('wfmGstin').value.trim(),tan:el('wfmTan').value.trim(),source:el('wfmSource').value,
    address:el('wfmAddress').value.trim(),remarks:el('wfmRemarks').value.trim()};
@@ -126,17 +126,17 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
    const similar=masterState.rows.filter(r=>norm(r.client_name)===norm(body.name)||body.mobile&&String(r.linked_mobiles||'').split(',').includes(body.mobile)||body.pan&&norm(r.pan)===norm(body.pan)||body.gstin&&norm(r.gstin)===norm(body.gstin));
    if(similar.length&&!confirm('Possible existing client: '+similar.slice(0,3).map(r=>r.client_name+' ('+r.client_code+')').join(', ')+'. Verify the record before creating another. Continue?'))return;
   }
-  const btn=el('wfmSave');btn.disabled=true;let confirmed=false;
+  const btn=el('wfmSave');btn.disabled=true;let confirmed=false,mirrorConfirmed=false;
   try{
-   for(let attempt=0;attempt<2;attempt++){
+   for(let attempt=0;attempt<3;attempt++){
     try{
-     const result=await request('save','POST',{...body,confirmNameConflict:confirmed});
+     const result=await request('save','POST',{...body,confirmNameConflict:confirmed,confirmMirrorReconcile:mirrorConfirmed});
      message('Saved successfully. Client code '+('WF-'+String(result.id).padStart(6,'0'))+'.'+(result.mobile?' WhatsApp / mobile linked.':' No WhatsApp needed.'));
      await fetchRecords();await refreshAll();
      const r=masterState.rows.find(v=>Number(v.id)===Number(result.id));if(r)fill(r);
      if(result.mobile){await selectClient(result.mobile);switchView('master');}
      return;
-    }catch(e){if(e.code==='LEGACY_NAME'&&!confirmed&&confirm(e.message+'\nConfirm that this is the correct customer before updating the chat name.')){confirmed=true;continue;}message(e.message,true);return;}
+    }catch(e){if(e.code==='LEGACY_PROFILE'&&!mirrorConfirmed&&confirm(e.message)){mirrorConfirmed=true;continue;}if(e.code==='LEGACY_NAME'&&!confirmed&&confirm(e.message+'\nConfirm that this is the correct customer before updating the chat name.')){confirmed=true;continue;}message(e.message,true);return;}
    }
   }finally{btn.disabled=false;}
  }
