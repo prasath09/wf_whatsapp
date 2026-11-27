@@ -133,7 +133,7 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
      const result=await request('save','POST',{...body,confirmNameConflict:confirmed,confirmMirrorReconcile:mirrorConfirmed});
      message('Saved successfully. Client code '+('WF-'+String(result.id).padStart(6,'0'))+'.'+(result.mobile?' WhatsApp / mobile linked.':' No WhatsApp needed.'));
      await fetchRecords();await refreshAll();
-     const r=masterState.rows.find(v=>Number(v.id)===Number(result.id));if(r)fill(r);
+     const r=result.mobile?(await request('lookup/'+encodeURIComponent(result.mobile))).client:masterState.rows.find(v=>Number(v.id)===Number(result.id));if(r&&Number(r.id)===Number(result.id))fill(r);
      if(result.mobile){await selectClient(result.mobile);switchView('master');}
      return;
     }catch(e){if(e.code==='LEGACY_PROFILE'&&!mirrorConfirmed&&confirm(e.message)){mirrorConfirmed=true;continue;}if(e.code==='LEGACY_NAME'&&!confirmed&&confirm(e.message+'\nConfirm that this is the correct customer before updating the chat name.')){confirmed=true;continue;}message(e.message,true);return;}
@@ -151,5 +151,14 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
  el('loginForm').addEventListener('submit',()=>setTimeout(fetchRecords,1300));
  el('logout').addEventListener('click',()=>{masterState.rows=[];state.masterRows=[];el('wfmChatActions').hidden=true;});
  setTimeout(fetchRecords,1600);
- window.WFMaster={start,openLink,openMasterOnly,refresh:fetchRecords,getContact,updateChatActions};
+ async function editSelected(mobile){
+  if(!admin())return status('Only Admin can edit client details.',true);
+  if(!mobile)return status('Select a registered client first.',true);
+  try{const data=await request('lookup/'+encodeURIComponent(mobile));
+   if(state.mobile!==mobile)return;
+   if(!data.client?.id)return status('No permanent Client Master found. Use explicit Register or Link action if required.',true);
+   fill(data.client);
+  }catch(e){status(e.message,true);}
+ }
+ window.WFMaster={start,openLink,openMasterOnly,refresh:fetchRecords,getContact,updateChatActions,editSelected};
 })();

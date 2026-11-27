@@ -27,7 +27,13 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
    $('clientName').value=data.client?.client_name||'';$('mobile').value=data.client.mobile;
    $('wf3fClientType').value=data.details.client_type||'INDIVIDUAL';
    $('wf3fEmail').value=data.details.email||'';$('wf3fAddress').value=data.details.address||'';
-   const shared=$('wfSharedProfile');shared.hidden=!data.master||!isAdmin();shared.onclick=()=>window.open('https://prasath09.github.io/wayforward-main-crm/?client='+encodeURIComponent(data.master.id),'_blank','noopener');$('clientForm').dataset.masterId=data.master?.id||'';$('clientName').readOnly=!!data.master;$('wf3fEmail').readOnly=!!data.master;$('wf3fAddress').readOnly=!!data.master;$('wf3fClientType').disabled=!!data.master;if(data.master&&isAdmin())button(summary,'Shared Client Profile',()=>window.open('https://prasath09.github.io/wayforward-main-crm/?client='+encodeURIComponent(data.master.id),'_blank','noopener'));if(data.master&&isAdmin())$('saveClient').textContent='Open shared client editor';else $('saveClient').textContent='Save client profile';
+   const shared=$('wfSharedProfile'), permanent=$('wfPermanentDetails');
+   shared.hidden=!master||!isAdmin();shared.onclick=()=>window.open('https://prasath09.github.io/wayforward-main-crm/?client='+encodeURIComponent(master.id),'_blank','noopener');
+   $('clientForm').dataset.masterId=master?.id||'';
+   permanent.replaceChildren();
+   if(master){for(const [label,value] of [['Client code',master.client_code],['Client name',master.client_name],['Client type',data.details.client_type],['Primary mobile',master.primary_mobile],['Email',data.details.email],['Address',data.details.address],...(isAdmin()?[['PAN',master.pan],['GSTIN',master.gstin],['TAN',master.tan],['Remarks',master.remarks]]:[])]){const line=text(permanent,'p','');text(line,'strong',label+': ');text(line,'span',value||'Not recorded');}}
+   else text(permanent,'p','No permanent Client Master linked. Use Client Master to register or link this enquiry.');
+   $('saveClient').hidden=!master||!isAdmin();$('saveClient').textContent='Edit in Client Master';
    if(!cases.length)text(jobs,'p','No jobs yet. Create a job to link employee tasks and documents.','muted');
    for(const c of cases){
      const card=text(jobs,'div','','wf3f-job');text(card,'strong',c.title);
@@ -49,11 +55,11 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
      const row=text(history,'div','','wf3f-event');text(row,'div',e.what);text(row,'small',fmt(e.date)+' · '+e.who+' · '+String(e.status||'').replaceAll('_',' '),'tiny');
    }
  }
- async function loadProfile(mobile){if(!mobile){wf.profile=null;$('clientForm').dataset.masterId='';$('wfSharedProfile').hidden=true;$('clientName').readOnly=false;$('wf3fEmail').readOnly=false;$('wf3fAddress').readOnly=false;$('wf3fClientType').disabled=false;clearForm();$('wf3fSummary').textContent='Create a client profile or select a customer.';$('wf3fJobs').textContent='';$('wf3fHistory').textContent='';return;}
+ async function loadProfile(mobile){$('wfPermanentDetails').textContent='Loading permanent Client Master…';$('saveClient').hidden=true;$('wfSharedProfile').hidden=true;if(!mobile){$('wfPermanentDetails').textContent='Select a client.';wf.profile=null;$('clientForm').dataset.masterId='';$('wfSharedProfile').hidden=true;$('clientName').readOnly=false;$('wf3fEmail').readOnly=false;$('wf3fAddress').readOnly=false;$('wf3fClientType').disabled=false;clearForm();$('wf3fSummary').textContent='Create a client profile or select a customer.';$('wf3fJobs').textContent='';$('wf3fHistory').textContent='';return;}
    const token=++wf.loadToken;try{const data=await call('client-history/'+encodeURIComponent(mobile));if(token!==wf.loadToken||wf.mobile!==mobile)return;wf.profile=data;
      // Do not replace fields while an employee is actively typing.
-     if(!document.activeElement?.closest('#clientForm'))drawProfile(data);
-   }catch(e){if(token===wf.loadToken)$('wf3fSummary').textContent=e.message;}
+     drawProfile(data);
+   }catch(e){if(token===wf.loadToken){$('wf3fSummary').textContent=e.message;$('wfPermanentDetails').textContent='Unable to load Client Master: '+e.message;}}
  }
  function paintReaders(){const nodes=document.querySelectorAll('#thread [data-wf-readers]');for(const node of nodes){const entries=wf.readers.get(node.dataset.wfReaders)||[];
    node.textContent=entries.length?'Read by: '+entries.map(r=>r.staff_name+' ('+fmt(r.first_viewed_at)+')').join(' · '):'Read by: —';
@@ -87,6 +93,6 @@ var WF_API_ORIGIN = String(window.WAYFORWARD_API_ORIGIN || '').replace(/\/$/, ''
    paintReaders();observeVisible();getReaders(e.detail.mobile);});
  document.addEventListener('wf3:reset',()=>{wf.sent.clear();wf.readQueue.clear();wf.readers.clear();wf.observer?.disconnect();wf.loadToken++;});
  document.addEventListener('wf3:role',()=>{wf.sent.clear();wf.readQueue.clear();observeVisible();});
- document.addEventListener('visibilitychange',()=>{if(document.hidden)wf.observer?.disconnect();else observeVisible();});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)wf.observer?.disconnect();else{observeVisible();if(wf.mobile&&$('profileView').classList.contains('active'))loadProfile(wf.mobile);}});
  // When the app starts with an existing session, other scripts dispatch events on selection.
 })();
